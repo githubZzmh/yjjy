@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-music-edit" th:object="${music}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">音乐名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" th:field="*{name}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">文件名：</label>
+				<div class="col-sm-8">
+					<input id="filename" name="filename" th:field="*{filename}" class="form-control" type="text" readonly="true">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">音乐文件地址：</label>
+				<div class="col-sm-8">
+					<input id="fileSrc" name="fileSrc" th:field="*{fileSrc}" class="form-control" type="text" readonly="true">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">演唱者：</label>
+				<div class="col-sm-8">
+					<input id="singer" name="singer" th:field="*{singer}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">播放时长：</label>
+				<div class="col-sm-8">
+					<input id="playtime" name="playtime" th:field="*{playtime}" class="form-control" type="text" readonly="true">
+				</div>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "basis/audio";
+		$("#form-music-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+                edit();
+	        }
+	    }
+        function edit() {
+            var id = $("input[name='id']").val();
+            var name = $("input[name='name']").val();
+            var filename = $("input[name='filename']").val();
+            var fileSrc = $("input[name='fileSrc']").val();
+            var singer = $("input[name='singer']").val();
+            var playtime = $("input[name='playtime']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "basis/audio/edit",
+                data : {
+                    "id": id,
+                    "name": name,
+                    "filename": filename,
+                    "fileSrc": fileSrc,
+                    "singer": singer,
+                    "playtime": playtime
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

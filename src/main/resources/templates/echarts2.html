@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]];
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>echarts</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <link href="../static/css/components.min.css?v=3.0.1" th:href="@{/css/components.min.css}" rel="stylesheet" id="style_components" type="text/css" />
+</head>
+<body class="gray-bg">
+<div class="row  border-bottom white-bg dashboard-header" style="padding: 5px 0px 0px 20px" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+    <div class="row clearfix">
+        <div class="col-sm-3 col-xs-6">
+            <a class="dashboard-stat dashboard-stat-v2 blue" href="javascript:Duang.getService('troubleMessageService').managerHome(1);">
+                <div class="visual">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span  th:text="${allCounts}">
+                        </span>
+                    </div>
+                    <div class="desc"> 设备总数 </div>
+                </div>
+                <!--<p class="clickinfo" onclick="Duang.getService('troubleMessageService').managerHome(1);"><i class="fa fa-hand-o-right"></i>-->
+                    <!--点击查看详情-->
+                <!--</p>-->
+            </a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a class="dashboard-stat dashboard-stat-v2 green" href="javascript:Duang.getService('troubleMessageService').managerHome(2);">
+                <div class="visual">
+                    <i class="fa fa-bar-chart-o"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span  th:text="${onCounts}">
+                        </span>
+                    </div>
+                    <div class="desc"> 在线设备数量 </div>
+                </div>
+                <!--<p class="clickinfo" onclick="Duang.getService('troubleMessageService').managerHome(2);"><i class="fa fa-hand-o-right"></i>-->
+                    <!--点击查看详情-->
+                <!--</p>-->
+            </a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a class="dashboard-stat dashboard-stat-v2 red" href="javascript:Duang.getService('troubleMessageService').managerHome(3);">
+                <div class="visual">
+                    <i class="iconfont">&#xe663;</i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span  th:text="${musicCounts}">
+                        </span>
+                    </div>
+                    <div class="desc"> 正在播放音乐数量 </div>
+                </div>
+                <!--<p class="clickinfo" onclick="Duang.getService('troubleMessageService').managerHome(3);"><i class="fa fa-hand-o-right"></i>-->
+                    <!--点击查看详情-->
+                <!--</p>-->
+            </a>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <a class="dashboard-stat dashboard-stat-v2 purple" href="javascript:Duang.getService('troubleMessageService').managerHome(4);">
+                <div class="visual">
+                    <i class="iconfont">&#xe612;</i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span th:text="${guangboCounts}">
+                        </span>
+                    </div>
+                    <div class="desc"> 正在广播数量 </div>
+                </div>
+                <!--<p class="clickinfo" onclick="Duang.getService('troubleMessageService').managerHome(4);"><i class="fa fa-hand-o-right"></i>-->
+                    <!--点击查看详情-->
+                <!--</p>-->
+            </a>
+        </div>
+    </div>
+
+    <div id="container1" style="height:500px"></div>
+    <div><span style="font-size: x-large;">分类统计</span></div>
+    <div id="containerBaby1" style="height:500px"></div>
+    <!--<div id="simple" style="height:400px"></div>-->
+    <!--<div id="radar" style="height:400px"></div>-->
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/echarts/echarts.min.js}"></script>
+<script type="text/javascript">
+    // var mySimple = echarts.init(document.getElementById("simple"));
+    // var myRadar = echarts.init(document.getElementById("radar"));
+    // $(function() {
+    //     showSimple();
+    //     showRadar();
+    // });
+    function showSimple(){
+        mySimple.clear();
+        mySimple.showLoading({text:'正在努力加载。。。'});
+        $.ajax({
+            type : "GET",
+            url : ctx + "/system/getSimpleOption",
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data){
+                    mySimple.setOption(data);
+                    mySimple.hideLoading();
+                }else{
+                    alert("出错");
+                }
+            }
+        });
+    }
+    function showRadar(){
+        myRadar.clear();
+        myRadar.showLoading({text:'正在努力加载。。。'});
+        $.ajax({
+            type : "GET",
+            url : ctx + "/system/getRadarOption",
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data){
+                    myRadar.setOption(data);
+                    myRadar.hideLoading();
+                }else{
+                    alert("出错");
+                }
+            }
+        });
+    }
+
+    //宕机次数和呼叫次数柱状图对比
+    var dom1 = document.getElementById("container1");
+    var myChart1 = echarts.init(dom1);
+    var date = [];
+    var count = [];
+    var outage = [];
+    $.ajax({
+        url: ctx + '/system/qushi',
+        dataType: 'json',
+        async: false,
+        success: function (_data) {
+            if (_data.name == null) {
+                date = [];
+            } else {
+                date = _data.name;
+                console.log(date);
+            }
+            if (_data.count == null) {
+                count = [];
+            } else {
+                count = _data.count;
+            }
+            if (_data.outage == null) {
+                outage = [];
+            } else {
+                outage = _data.outage;
+            }
+        }
+    });
+
+    var option1 = {
+        title : {
+            text: '呼叫次数和宕机次数',
+            subtext: ''
+        },
+        tooltip : {
+            trigger: 'axis'
+        },
+        legend: {
+            data:['宕机次数','呼叫次数']
+        },
+        toolbox: {
+            show : true,
+            feature : {
+                dataView : {show: true, readOnly: false},
+                magicType : {show: true, type: ['line', 'bar']},
+                restore : {show: true},
+                saveAsImage : {show: true}
+            }
+        },
+        calculable : true,
+        xAxis : [
+            {
+                type : 'category',
+                // data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+                data : date
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        series : [
+            {
+                name:'宕机次数',
+                type:'bar',
+                // data:[2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+                data:outage,
+                markPoint : {
+                    data : [
+                        {type: 'max', name: '最大值', xAxis: 7, yAxis: 183},
+                        {type: 'min', name: '最小值'}
+                    ]
+                },
+                markLine : {
+                    data : [
+                        {type : 'average', name: '平均值'}
+                    ]
+                }
+            },
+            {
+                name:'呼叫次数',
+                type:'bar',
+                // data:[2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+                data:count,
+                markPoint : {
+                    data : [
+                        {type: 'max', name: '最大值', xAxis: 7, yAxis: 183},
+                        {type: 'min', name: '最小值'}
+                    ]
+                },
+                markLine : {
+                    data : [
+                        {type : 'average', name : '平均值'}
+                    ]
+                }
+            }
+        ]
+    };
+    myChart1.setOption(option1, true);
+
+    //设备分类
+    var domTBaby = document.getElementById("containerBaby1");
+    var myChartTw1o = echarts.init(domTBaby);
+    var catName = [];
+    var dds = [];
+    $.ajax({
+        url: ctx + '/system/shebeiCat',
+        dataType: 'json',
+        async: false,
+        success: function (_data) {
+            var legend = [];
+            for (var i=0;i< _data.catName.length;i++) {
+                var d = {};
+                d['value'] = _data.shebeiCounts[i];
+                d['name'] = _data.catName[i];
+                dds.push(d);
+                catName = _data.catName;
+            }
+        }
+    });
+    //option
+    var optiona = {
+        backgroundColor: '#fff',
+        title: {
+            x: 'center',
+            y: 'center',
+            textStyle: {
+                fontWeight: 'normal',
+                fontSize: 16
+            }
+        },
+        tooltip: {
+            show: true,
+            trigger: 'item',
+            formatter: "{b}: {c} ({d}%)"
+        },
+        legend: {
+            orient: 'horizontal',
+            bottom: '0%',
+            data: catName
+        },
+        series: [{
+            type: 'pie',
+            selectedMode: 'single',
+            radius: ['25%', '58%'],
+            color: ['#86D560', '#AF89D6', '#59ADF3', '#FF999A', '#FFCC67'],
+
+            label: {
+                normal: {
+                    position: 'inner',
+                    formatter: '{d}%',
+
+                    textStyle: {
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: 14
+                    }
+                }
+            },
+            labelLine: {
+                normal: {
+                    show: false
+                }
+            },
+            data: dds
+        }, {
+            type: 'pie',
+            radius: ['58%', '83%'],
+            itemStyle: {
+                normal: {
+                    color: '#F2F2F2'
+                },
+                emphasis: {
+                    color: '#ADADAD'
+                }
+            },
+            label: {
+                normal: {
+                    position: 'inner',
+                    formatter: '{c}',
+                    textStyle: {
+                        color: '#777777',
+                        fontWeight: 'bold',
+                        fontSize: 14
+                    }
+                }
+            },
+            data: dds
+        }]
+    };
+    myChartTw1o.setOption(optiona, true);
+</script>
+</body>
+</html>

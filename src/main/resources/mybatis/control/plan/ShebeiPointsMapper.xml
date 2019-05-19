@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.plan.mapper.ShebeiPointsMapper">
+    <resultMap type="ShebeiPoints" id="ShebeiPointsResult">
+        <result property="sPoints"    column="s_points"    />
+        <result property="mapName"    column="map_name"    />
+        <result property="mapUrl"    column="map_url"    />
+        <result property="broadName"    column="broad_name"    />
+        <result property="broadUrl"    column="broad_url"    />
+        <result property="route"    column="route"    />
+    </resultMap>
+	<sql id="selectShebeiPointsVo">
+        select s_points, map_name, map_url, broad_name, broad_url, route from p_shebei_points
+    </sql>
+    <select id="selectShebeiPointsList" parameterType="ShebeiPoints" resultMap="ShebeiPointsResult">
+        <include refid="selectShebeiPointsVo"/>
+        <where>  
+            <if test="sPoints != null  and sPoints != '' "> and s_points = #{sPoints}</if>
+             <if test="mapName != null  and mapName != '' "> and map_name = #{mapName}</if>
+             <if test="mapUrl != null  and mapUrl != '' "> and map_url = #{mapUrl}</if>
+             <if test="broadName != null  and broadName != '' "> and broad_name = #{broadName}</if>
+             <if test="broadUrl != null  and broadUrl != '' "> and broad_url = #{broadUrl}</if>
+         </where>
+    </select>
+    <select id="selectShebeiPointsById" parameterType="String" resultMap="ShebeiPointsResult">
+        <include refid="selectShebeiPointsVo"/>
+        where s_points = #{sPoints}
+    </select>
+    <insert id="insertShebeiPoints" parameterType="ShebeiPoints">
+        insert into p_shebei_points
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sPoints != null  and sPoints != ''  ">s_points,</if>
+			<if test="mapName != null  and mapName != ''  ">map_name,</if>
+			<if test="mapUrl != null  and mapUrl != ''  ">map_url,</if>
+			<if test="broadName != null  and broadName != ''  ">broad_name,</if>
+			<if test="broadUrl != null  and broadUrl != ''  ">broad_url,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sPoints != null  and sPoints != ''  ">#{sPoints},</if>
+			<if test="mapName != null  and mapName != ''  ">#{mapName},</if>
+			<if test="mapUrl != null  and mapUrl != ''  ">#{mapUrl},</if>
+			<if test="broadName != null  and broadName != ''  ">#{broadName},</if>
+			<if test="broadUrl != null  and broadUrl != ''  ">#{broadUrl},</if>
+         </trim>
+    </insert>
+    <update id="updateShebeiPoints" parameterType="ShebeiPoints">
+        update p_shebei_points
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mapName != null  and mapName != ''  ">map_name = #{mapName},</if>
+            <if test="mapUrl != null  and mapUrl != ''  ">map_url = #{mapUrl},</if>
+            <if test="broadName != null  and broadName != ''  ">broad_name = #{broadName},</if>
+            <if test="broadUrl != null  and broadUrl != ''  ">broad_url = #{broadUrl},</if>
+        </trim>
+        where s_points = #{sPoints}
+    </update>
+	<delete id="deleteShebeiPointsById" parameterType="String">
+        delete from p_shebei_points where s_points = #{sPoints}
+    </delete>
+    <delete id="deleteShebeiPointsByIds" parameterType="String">
+        delete from p_shebei_points where s_points in 
+        <foreach item="sPoints" collection="array" open="(" separator="," close=")">
+            #{sPoints}
+        </foreach>
+    </delete>
+</mapper>

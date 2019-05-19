@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.plan.mapper.PointMapper">
+    <resultMap type="Point" id="PointResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="numId"    column="num_id"    />
+        <result property="pointX"    column="point_x"    />
+        <result property="pointY"    column="point_y"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+	<sql id="selectPointVo">
+        select id, name, num_id, point_x, point_y, type from p_point
+    </sql>
+    <select id="selectPointList" parameterType="Point" resultMap="PointResult">
+        select id, name, num_id, point_x, point_y, if(type = '0','虚拟点',if(type = '1','设备点','')) as type
+        from p_point
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="numId != null  and numId != '' "> and num_id = #{numId}</if>
+             <if test="pointX != null "> and point_x = #{pointX}</if>
+             <if test="pointY != null "> and point_y = #{pointY}</if>
+             <if test="type != null  and type != '' "> and type = #{type}</if>
+         </where>
+    </select>
+    <select id="selectPointById" parameterType="String" resultMap="PointResult">
+        <include refid="selectPointVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertPoint" parameterType="Point">
+        insert into p_point
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="numId != null  and numId != ''  ">num_id,</if>
+			<if test="pointX != null  ">point_x,</if>
+			<if test="pointY != null  ">point_y,</if>
+            <if test="type != null  ">type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="numId != null  and numId != ''  ">#{numId},</if>
+			<if test="pointX != null  ">#{pointX},</if>
+			<if test="pointY != null  ">#{pointY},</if>
+            <if test="type != null  ">#{type},</if>
+         </trim>
+    </insert>
+    <update id="updatePoint" parameterType="Point">
+        update p_point
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="numId != null  and numId != ''  ">num_id = #{numId},</if>
+            <if test="pointX != null  ">point_x = #{pointX},</if>
+            <if test="pointY != null  ">point_y = #{pointY},</if>
+            <if test="type != null  ">type = #{type},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deletePointById" parameterType="String">
+        delete from p_point where id = #{id}
+    </delete>
+    <delete id="deletePointByIds" parameterType="String">
+        delete from p_point where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

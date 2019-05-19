@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.system.user.mapper.PlanMapMapper">
+    
+    <resultMap type="PlanMap" id="PlanMapResult">
+        <result property="id"    column="id"    />
+        <result property="planId"    column="plan_id"    />
+        <result property="shebeiId"    column="shebei_id"    />
+        <result property="mapUrl"    column="map_url"    />
+        <result property="broadcastUrl"    column="broadcast_url"    />
+        <result property="mapName"    column="map_name"    />
+        <result property="broadcastName"    column="broadcast_name"    />
+        <result property="userid"    column="userid"    />
+        <result property="time"    column="time"    />
+    </resultMap>
+    <resultMap type="Plan" id="PlanResult">
+        <result property="id"    column="pid"    />
+        <result property="name"    column="pname"    />
+    </resultMap>
+    <resultMap type="ShebeiCat" id="ShebeiCatResult">
+        <result property="id"    column="sid"    />
+        <result property="name"    column="sname"    />
+        <result property="type"    column="type"    />
+        <result property="ip"    column="ip"    />
+        <result property="playType"    column="play_type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+    <resultMap type="EchartsSimple" id="EchartsSimpleResult">
+        <result property="value"    column="num"    />
+        <result property="name"    column="pname"    />
+    </resultMap>
+	
+	<sql id="selectPlanMapVo">
+        select id, plan_id, shebei_id, map_url, broadcast_url, map_name, broadcast_name, userid, time from p_plan_map
+    </sql>
+	
+    <select id="selectPlanMapList" parameterType="PlanMap" resultMap="EchartsSimpleResult">
+        SELECT a.pname, COUNT(a.pid) AS num
+        FROM(
+	        SELECT ppm.id, ppm.plan_id, ppm.shebei_id, ppm.map_url, ppm.broadcast_url,
+				    ppm.map_name, ppm.broadcast_name, ppm.userid, ppm.time, pp.id AS pid,
+				    pp.name AS pname, psc.id AS sid, psc.name AS sname, psc.type, psc.ip,
+				    psc.play_type, psc.remark
+	        FROM p_plan_map ppm LEFT JOIN p_plan pp ON ppm.plan_id = pp.id
+								LEFT JOIN p_shebei_cat psc ON ppm.shebei_id = psc.id
+        ) a
+        GROUP BY a.pid ORDER BY a.pid
+    </select>
+    
+    <select id="selectPlanMapById" parameterType="String" resultMap="EchartsSimpleResult">
+        SELECT a.pname, COUNT(a.pid) AS num
+        FROM(
+	        SELECT ppm.id, ppm.plan_id, ppm.shebei_id, ppm.map_url, ppm.broadcast_url,
+				    ppm.map_name, ppm.broadcast_name, ppm.userid, ppm.time, pp.id AS pid,
+				    pp.name AS pname, psc.id AS sid, psc.name AS sname, psc.type, psc.ip,
+				    psc.play_type, psc.remark
+	        FROM p_plan_map ppm LEFT JOIN p_plan pp ON ppm.plan_id = pp.id
+								LEFT JOIN p_shebei_cat psc ON ppm.shebei_id = psc.id
+            WHERE DATE_FORMAT( ppm.time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+        ) a
+        GROUP BY a.pid ORDER BY a.pid
+    </select>
+        
+    <insert id="insertPlanMap" parameterType="PlanMap">
+        insert into p_plan_map
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="planId != null  and planId != ''  ">plan_id,</if>
+			<if test="shebeiId != null  and shebeiId != ''  ">shebei_id,</if>
+			<if test="mapUrl != null  and mapUrl != ''  ">map_url,</if>
+			<if test="broadcastUrl != null  and broadcastUrl != ''  ">broadcast_url,</if>
+			<if test="mapName != null  and mapName != ''  ">map_name,</if>
+			<if test="broadcastName != null  and broadcastName != ''  ">broadcast_name,</if>
+			<if test="userid != null  and userid != ''  ">userid,</if>
+			<if test="time != null  ">time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="planId != null  and planId != ''  ">#{planId},</if>
+			<if test="shebeiId != null  and shebeiId != ''  ">#{shebeiId},</if>
+			<if test="mapUrl != null  and mapUrl != ''  ">#{mapUrl},</if>
+			<if test="broadcastUrl != null  and broadcastUrl != ''  ">#{broadcastUrl},</if>
+			<if test="mapName != null  and mapName != ''  ">#{mapName},</if>
+			<if test="broadcastName != null  and broadcastName != ''  ">#{broadcastName},</if>
+			<if test="userid != null  and userid != ''  ">#{userid},</if>
+			<if test="time != null  ">#{time},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updatePlanMap" parameterType="PlanMap">
+        update p_plan_map
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="planId != null  and planId != ''  ">plan_id = #{planId},</if>
+            <if test="shebeiId != null  and shebeiId != ''  ">shebei_id = #{shebeiId},</if>
+            <if test="mapUrl != null  and mapUrl != ''  ">map_url = #{mapUrl},</if>
+            <if test="broadcastUrl != null  and broadcastUrl != ''  ">broadcast_url = #{broadcastUrl},</if>
+            <if test="mapName != null  and mapName != ''  ">map_name = #{mapName},</if>
+            <if test="broadcastName != null  and broadcastName != ''  ">broadcast_name = #{broadcastName},</if>
+            <if test="userid != null  and userid != ''  ">userid = #{userid},</if>
+            <if test="time != null  ">time = #{time},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deletePlanMapById" parameterType="String">
+        delete from p_plan_map where id = #{id}
+    </delete>
+	
+    <delete id="deletePlanMapByIds" parameterType="String">
+        delete from p_plan_map where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.system.echarsDP.mapper.EchartsCdMapper">
+    <resultMap type="EchartsCd" id="EchartsCdResult">
+        <result property="device"    column="device"    />
+        <result property="data"    column="data"    />
+        <result property="data_"    column="data_"    />
+    </resultMap>
+    <select id="selectEchartsCd" parameterType="String" resultMap="EchartsCdResult">
+        select device, data, data_
+		from p_echarts_cd
+    </select>
+</mapper>

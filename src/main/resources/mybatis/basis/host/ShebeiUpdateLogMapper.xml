@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.host.mapper.ShebeiUpdateLogMapper">
+    
+    <resultMap type="ShebeiUpdateLog" id="ShebeiUpdateLogResult">
+        <result property="shebeiId"    column="shebeiId"    />
+        <result property="updateTime"    column="updateTime"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+	
+	<sql id="selectShebeiUpdateLogVo">
+        select shebeiId, updateTime, status from p_shebei_update_log
+    </sql>
+	
+    <select id="selectShebeiUpdateLogList" parameterType="ShebeiUpdateLog" resultMap="ShebeiUpdateLogResult">
+        <include refid="selectShebeiUpdateLogVo"/>
+        <where>  
+            <if test="shebeiId != null  and shebeiId != '' "> and shebeiId = #{shebeiId}</if>
+             <if test="updateTime != null "> and updateTime = #{updateTime}</if>
+             <if test="status != null  and status != '' "> and status = #{status}</if>
+         </where>
+    </select>
+    
+    <select id="selectShebeiUpdateLogById" parameterType="String" resultMap="ShebeiUpdateLogResult">
+        <include refid="selectShebeiUpdateLogVo"/>
+        where shebeiId = #{shebeiId}
+    </select>
+
+    <select id="selectOnlineCount" parameterType="String" resultMap="ShebeiUpdateLogResult">
+        select IFNULL(COUNT(1),0) from p_shebei_update_log
+        where 1=1
+        <if test="shebeiId != null  and shebeiId != ''  ">
+            and  shebeiId = #{shebeiId}
+        </if>
+        <if test="updateTime != null  and updateTime != ''  ">
+            and  date_format(updateTime, '%Y-%m-%d') = #{updateTime}
+        </if>
+        <if test="status != null  and status != ''  ">
+            and  status = #{status}
+        </if>
+    </select>
+
+    <select id="selectDownCount" parameterType="String" resultMap="ShebeiUpdateLogResult">
+        select IFNULL(COUNT(1),0) from p_shebei_update_log
+        where 1=1
+        <if test="shebeiId != null  and shebeiId != ''  ">
+            and  shebeiId = #{shebeiId}
+        </if>
+        <if test="updateTime != null  and updateTime != ''  ">
+            and  date_format(updateTime, '%Y-%m-%d') = #{updateTime}
+        </if>
+        <if test="status != null  and status != ''  ">
+            and  status = #{status}
+        </if>
+    </select>
+
+    <!--查询每天数据-->
+    <select id="selectEveryDayCount" resultType="Integer" parameterType="Map">
+      SELECT IFNULL(count(1),0) from p_shebei_update_log
+      WHERE 1=1
+        <if test="num != null  and num != ''  ">
+            and TO_DAYS(NOW())-TO_DAYS(updateTime) = #{num}
+        </if>
+        <if test="shebeiId != null  and shebeiId != ''  ">
+            and  shebeiId = #{shebeiId}
+        </if>
+        <if test="status != null  and status != ''  ">
+            <if test="status == 0">
+                and  status = #{status}
+            </if>
+            <if test="status == 1">
+                and  status != 0
+            </if>
+        </if>
+    </select>
+        
+    <insert id="insertShebeiUpdateLog" parameterType="ShebeiUpdateLog">
+        insert into p_shebei_update_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="shebeiId != null  and shebeiId != ''  ">shebeiId,</if>
+			<if test="updateTime != null  ">updateTime,</if>
+			<if test="status != null  and status != ''  ">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="shebeiId != null  and shebeiId != ''  ">#{shebeiId},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="status != null  and status != ''  ">#{status},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateShebeiUpdateLog" parameterType="ShebeiUpdateLog">
+        update p_shebei_update_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="updateTime != null  ">updateTime = #{updateTime},</if>
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+        </trim>
+        where shebeiId = #{shebeiId}
+    </update>
+
+	<delete id="deleteShebeiUpdateLogById" parameterType="String">
+        delete from p_shebei_update_log where shebeiId = #{shebeiId}
+    </delete>
+	
+    <delete id="deleteShebeiUpdateLogByIds" parameterType="String">
+        delete from p_shebei_update_log where shebeiId in 
+        <foreach item="shebeiId" collection="array" open="(" separator="," close=")">
+            #{shebeiId}
+        </foreach>
+    </delete>
+    
+</mapper>

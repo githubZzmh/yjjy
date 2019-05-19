@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+			<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="hangAll()" shiro:hasPermission="control:siphone:list">
+					挂断
+				</a>
+				<a class="btn btn-success" onclick="jt()" shiro:hasPermission="control:siphone:list">
+					接听
+				</a>
+				<span id="ldxs"></span>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var prefix = ctx + "control/siphone";
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                queryParams: queryParams,
+                modalName: "sip电话",
+				search: false,
+		        showExport: true,
+                uniqueId: "shebei.id", //每一行的唯一标识，一般为主键列
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'shebei.numId',
+					title : '主机号码'
+				}, {
+                    field : 'shebeiCat.name',
+                    title : '所属分组'
+                }, {
+                    field : 'shebei.ip',
+                    title : '主机IP'
+				}, {
+                    field : 'shebei.gateway',
+                    title : '网关'
+                }, {
+                    field : 'shebei.mac',
+                    title : 'MAC'
+				}, {
+                    field : 'shebei.status',
+                    title : '状态'
+                },
+				{
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+                        actions.push('<a class="btn btn-warning btn-edit" href="#" onclick="dialAll(\'' + row.shebei.id + '\')"><i class="fa fa-download"></i>拨号</a>');
+                        actions.push('<a class="btn btn-warning btn-edit" href="#" onclick="spop(\'' + row.shebei.id + '\')"><i class="fa fa-download"></i>开启视频</a>');
+                        actions.push('<a class="btn btn-warning btn-edit" href="#" onclick="sped(\'' + row.shebei.id + '\')"><i class="fa fa-download"></i>关闭视频</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+            window.setInterval("ldxs()",1000);
+        });
+        function dialAll(id) {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("yy");
+                yyyyy.setAttribute("sssid",id);
+                yyyyy.click();
+            },3000);
+        }
+        function hangAll() {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("btnHangUp");
+                yyyyy.click();
+            },1000);
+            window.parent.document.getElementById('mysRemoteNumber').innerHTML = "";
+        }
+        function jt() {
+            var frame = window.parent.document.getElementById('myyFrame');
+            var myyFrame = frame.contentWindow.document;
+            setTimeout(function(){
+                myyFrame.getElementById("btnCall").click();
+            },2000);
+            window.parent.document.getElementById('mysRemoteNumber').innerHTML = "";
+        }
+        function ldxs() {
+            var frame = window.parent.document.getElementById('mysRemoteNumber');
+            if ("" != frame.innerHTML) {
+                $("#ldxs").text(frame.innerHTML+"来电");
+			} else {
+                $("#ldxs").text("");
+			}
+        }
+        //打开视频
+        function spop(sssid) {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("sp");
+                yyyyy.setAttribute("sssid",sssid);//$("#bdid").val()
+                yyyyy.click();
+            },3000);
+        }
+        //关闭视频
+        function sped(sssid) {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("spe");
+                yyyyy.setAttribute("sssid",sssid);
+                yyyyy.click();
+            },3000);
+        }
+        function queryParams(params) {
+            var catId = $("#catId").val();
+            return {
+                catId:       catId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+    </script>
+</body>
+</html>

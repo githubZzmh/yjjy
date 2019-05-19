@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-shebeiCat-add">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">分类名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" class="form-control" type="text">
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">小组类型：</label>
+				<div class="col-sm-8">
+					<select id="type" name="type" class="form-control">
+						<option value="9">请选择</option>
+						<option value="0">广播小组</option>
+						<option value="1">音乐小组</option>
+						<option value="2">应急小组</option>
+					</select>
+				</div>
+			</div>-->
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">组播地址：</label>
+				<div class="col-sm-8">
+					<input id="ip" name="ip" class="form-control" type="text">
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">播放类型：</label>
+				<div class="col-sm-8">
+					<input id="playType" name="playType" class="form-control" type="text">
+				</div>
+			</div>-->
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">备注：</label>
+				<div class="col-sm-8">
+					<input id="remark" name="remark" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "basis/group";
+		$("#form-shebeiCat-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+                add();
+	        }
+	    }
+        function add() {
+            var id = $("input[name='id']").val();
+            var name = $("input[name='name']").val();
+            //var type = $("select[name='type']").val();
+            var ip = $("input[name='ip']").val();
+            //var playType = $("input[name='playType']").val();
+            var remark = $("input[name='remark']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "basis/group/add",
+                data : {
+                    "id": id,
+                    "name": name,
+                    //"type": type,
+                    "ip": ip,
+                    //"playType": playType,
+                    "remark": remark
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

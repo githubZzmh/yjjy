@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.audio.mapper.MusicMapper">
+    <resultMap type="Music" id="MusicResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="singer"    column="singer"    />
+        <result property="playtime"    column="playtime"    />
+        <result property="filename"    column="filename"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="fileSrc"    column="file_src"    />
+    </resultMap>
+    <resultMap type="SMusic" id="SMusicResult">
+        <result property="id"    column="id"    />
+        <result property="musicId"    column="music_id"    />
+        <result property="shebeiId"    column="shebei_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="isDel"    column="is_del"    />
+    </resultMap>
+	<sql id="selectMusicVo">
+        select id, name, singer, playtime, filename, createtime, file_src from p_music
+    </sql>
+    <select id="selectMusicList" parameterType="Music" resultMap="MusicResult">
+        <include refid="selectMusicVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="name != null  and name != '' "> and name = #{name}</if>
+            <if test="singer != null  and singer != '' "> and singer = #{singer}</if>
+            <if test="playtime != null  and playtime != '' "> and playtime = #{playtime}</if>
+            <if test="filename != null  and filename != '' "> and filename = #{filename}</if>
+            <if test="createtime != null "> and createtime = #{createtime}</if>
+            <if test="fileSrc != null  and fileSrc != '' "> and file_src = #{fileSrc}</if>
+        </where>
+    </select>
+    <select id="selectMusicListByShebeiId" parameterType="String" resultMap="MusicResult">
+        select id, name, singer, playtime, filename, createtime, file_src from p_music
+        where id in (select music_id from p_shebei_music where shebei_id in (${value}))
+    </select>
+    <select id="selectMusicListByShebeiId_" parameterType="String" resultMap="MusicResult">
+        select id, name, singer, playtime, filename, createtime, file_src from p_music
+        where id not in (select music_id from p_shebei_music where shebei_id in (${value}))
+    </select>
+    <select id="selectMusicListByMap" parameterType="java.util.Map" resultMap="MusicResult">
+        select id, name, singer, playtime, filename, createtime, file_src from p_music
+        where id not in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectMusicById" parameterType="String" resultMap="MusicResult">
+        <include refid="selectMusicVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertMusic" parameterType="Music">
+        insert into p_music
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="singer != null  and singer != ''  ">singer,</if>
+			<if test="playtime != null  and playtime != ''  ">playtime,</if>
+			<if test="filename != null  and filename != ''  ">filename,</if>
+			<if test="createtime != null  ">createtime,</if>
+			<if test="fileSrc != null  and fileSrc != ''  ">file_src,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="singer != null  and singer != ''  ">#{singer},</if>
+			<if test="playtime != null  and playtime != ''  ">#{playtime},</if>
+			<if test="filename != null  and filename != ''  ">#{filename},</if>
+			<if test="createtime != null  ">#{createtime},</if>
+			<if test="fileSrc != null  and fileSrc != ''  ">#{fileSrc},</if>
+         </trim>
+    </insert>
+    <update id="updateMusic" parameterType="Music">
+        update p_music
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="singer != null  and singer != ''  ">singer = #{singer},</if>
+            <if test="playtime != null  and playtime != ''  ">playtime = #{playtime},</if>
+            <if test="filename != null  and filename != ''  ">filename = #{filename},</if>
+            <if test="createtime != null  ">createtime = #{createtime},</if>
+            <if test="fileSrc != null  and fileSrc != ''  ">file_src = #{fileSrc},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deleteMusicById" parameterType="String">
+        delete from p_music where id = #{id}
+    </delete>
+    <delete id="deleteMusicByIds" parameterType="String">
+        delete from p_music where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectSMusicList" parameterType="SMusic" resultMap="MusicResult">
+        select * from p_shebei_music
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="musicId != null  and musicId != '' "> and music_id = #{musicId}</if>
+            <if test="shebeiId != null  and shebeiId != '' "> and shebei_id = #{shebeiId}</if>
+            <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+            <if test="createTime != null  and createTime != '' "> and create_time = #{createTime}</if>
+            <if test="isDel != null  and isDel != '' "> and is_del = #{isDel}</if>
+        </where>
+    </select>
+
+    <insert id="insertSMusic" parameterType="SMusic">
+        insert into p_shebei_music
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="musicId != null  and musicId != ''  ">music_id,</if>
+            <if test="shebeiId != null  and shebeiId != ''  ">shebei_id,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="isDel != null  and isDel != ''  ">is_del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">#{id},</if>
+            <if test="musicId != null  and musicId != ''  ">#{musicId},</if>
+            <if test="shebeiId != null  and shebeiId != ''  ">#{shebeiId},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="isDel != null  and isDel != ''  ">#{isDel},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteSMusicByIds" parameterType="SMusic">
+        delete from p_shebei_music where shebei_id = #{shebeiId} and
+        music_id in
+        <foreach item="id" collection="musicIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSMusicByShebeiId" parameterType="SMusic">
+        delete from p_shebei_music where shebei_id = #{shebeiId}
+    </delete>
+</mapper>

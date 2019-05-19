@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+	.progressBar{
+		width: 1%;
+		height: 20px;
+		line-height: 20px;
+		text-align: center;
+		color: #fff;
+		border-radius: 20px;
+		background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+		background-color: #f8ac59;
+	}
+	.mloading-text{
+		display: none !important;
+	}
+	.mloading-icon{
+		display: none !important;
+	}
+</style>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+			<!--<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<li>
+								音乐名称：<input type="text" name="name"/>
+							</li>
+							<li>
+								演唱者：<input type="text" name="singer"/>
+							</li>
+
+							<li>
+								播放时长：<input type="text" name="playtime"/>
+							</li>
+
+							<li>
+								文件名：<input type="text" name="filename"/>
+							</li>
+
+							<li>
+								创建时间：<input type="text" name="createtime"/>
+							</li>
+
+							<li>
+								音乐文件地址：<input type="text" name="fileSrc"/>
+							</li>
+
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>-->
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<input id="shebeId" name="shebeId" class="form-control" type="hidden" readonly="true" th:value="${shebeId}">
+				<!--<input name="playlistId" id="playlistId">-->
+				<a class="btn btn-success" onclick="issue()" shiro:hasPermission="basis:songdown:issue"><!--btn-success btn-edit disabled-->
+					<i class="fa fa-plus"></i> 歌曲下发
+				</a>
+				<!--<a class="btn btn-primary" onclick="synchronize()" shiro:hasPermission="basis:songdown:synchronize">
+					<i class="fa fa-edit"></i> 歌曲同步
+				</a>-->
+				<a class="btn btn-primary" onclick="synchronizeNo()" shiro:hasPermission="basis:songdown:synchronize">
+					<i class="fa fa-edit"></i> 歌曲同步
+				</a>
+				<a class="btn btn-primary" onclick="delMusic()" shiro:hasPermission="basis:songdown:synchronize">
+					<i class="fa fa-edit"></i> 歌曲删除
+				</a>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+	 <link href="../static/css/loading/jquery.mloading.css" th:href="@{/css/loading/jquery.mloading.css}" rel="stylesheet"/>
+	 <script th:src="@{/js/loading/jquery.myloading.js}"></script>
+    <script th:inline="javascript">
+        var id = '';
+        var y = 0;
+        var x = $('.progressBar').width();
+        function openn(num) {
+            $("body").mLoading("show");
+            $('.progressBar').css('width',"1%");
+            $('.percent').html('');
+            y = 0;
+            id =setInterval("parse()",num);
+        }
+        function parse(){
+            x = parseInt(x) + 1;
+            y = y+1;
+            $('.progressBar').css('width',y + "%");
+            $('.percent').html(y + "%");
+            if (y >= 100) {
+                $('.percent').html("100%");
+                clearInterval(id);
+                $("body").mLoading("hide");
+            }
+        }
+        var prefix = ctx + "basis/songdown";
+        $(function() {
+            var options = {
+                url: prefix + "/listMusic",
+                modalName: "音乐",
+				search: false,
+		        showExport: true,
+                queryParams: queryParams,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+		            checkbox: true
+		        }, {
+					field : 'name', 
+					title : '音乐名称',
+					sortable: true
+				}, {
+					field : 'singer', 
+					title : '演唱者',
+					sortable: true
+				}, {
+					field : 'playtime', 
+					title : '播放时长',
+					sortable: true
+				}, {
+					field : 'filename', 
+					title : '文件名',
+					sortable: true
+				}, {
+					field : 'createtime', 
+					title : '创建时间',
+					sortable: true
+				}, {
+					field : 'fileSrc', 
+					title : '音乐文件地址',
+					sortable: true
+				}]
+            };
+            $.table.init(options);
+        });
+        function queryParams(params) {
+            var shebeId = $("input[name='shebeId']").val();
+            return {
+                shebeId:       shebeId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+        //歌曲下发
+        function issue() {
+            var url = prefix + '/add/' + $("input[name='shebeId']").val();
+            $.modal.open("歌曲下发", url);
+            /*var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.confirm("确认要歌曲下发选中的" + rows.length + "条主机吗?", function() {
+                var shebeId = $("input[name='shebeId']").val();
+                var url = prefix + "/issue";
+                var data = { "ids": rows.join(), "shebeId": shebeId };
+                $.operate.submit(url, "post", "json", data);
+            });*/
+        }
+        // function synchronize() {
+        //     var shebeId = $("input[name='shebeId']").val();
+        //     var url = prefix + "/synchronize";
+        //     var data = { "shebeId": shebeId };
+        //     $.operate.submit(url, "post", "json", data);
+        // }
+		function synchronizeNo() {
+			var shebeId = $("input[name='shebeId']").val();
+			var url = prefix + "/synchronizeNo";
+			var data = { "shebeId": shebeId };
+			$.operate.submit(url, "post", "json", data);
+		}
+		function delMusic() {
+			var shebeId = $("input[name='shebeId']").val();
+			var url = prefix + "/listDel";
+
+			var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+			if (rows.length == 0) {
+				$.modal.alertWarning("请至少选择一条记录");
+				return;
+			}
+			$.modal.confirm("确认要删除选中的" + rows.length + "条数据吗?", function() {
+				// var url = $.table._option.removeUrl;
+				var data = { "ids": rows.join(),"shebeId": shebeId };
+				$.operate.submit(url, "post", "json", data);
+			});
+
+			// var data = { "shebeId": shebeId };
+			// $.operate.submit(url, "post", "json", data);
+		}
+    </script>
+</body>
+</html>

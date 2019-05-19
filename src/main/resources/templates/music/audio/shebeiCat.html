@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="outdownAll()" shiro:hasPermission="basis:group:add">
+					 播放
+				</a>
+				<a class="btn btn-success" onclick="outdownAll1()" shiro:hasPermission="basis:group:add">
+					 终止
+				</a>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('basis:group:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('basis:group:remove')}]];
+        var prefix = ctx + "music/group";
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+				startUrl: prefix + "/start",
+				stopUrl: prefix + "/stop",
+                modalName: "设备分组",
+				search: false,
+		        showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'name', 
+					title : '分类名称',
+					sortable: true,
+                    formatter: function(value, row, index) {
+                        return '<a href="#" onclick="detail(\'' + row.id + '\')">' + value + '</a>';
+                    }
+				},
+				{
+					field : 'remark', 
+					title : '备注',
+					sortable: true
+				}]
+            };
+            $.table.init(options);
+        });
+        /*设备分组-详细*/
+        function detail(catId) {
+            var url = prefix + '/shebeiList/' + catId;
+            createMenuItem(url, "设备分组");
+        }
+
+
+        function outdownAll() {
+            var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.confirm("确认选中的" + rows.length + "条数据吗?", function() {
+                var url = prefix + "/start";
+                var data = {
+                    "ids": rows.join()
+                };
+                $.operate.submit(url, "post", "json", data);
+            });
+        }
+        function outdownAll1() {
+            var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.confirm("确认选中的" + rows.length + "条数据吗?", function() {
+                var url = prefix + "/stop";
+                var data = {
+                    "ids": rows.join()
+                };
+                $.operate.submit(url, "post", "json", data);
+            });
+        }
+    </script>
+</body>
+</html>

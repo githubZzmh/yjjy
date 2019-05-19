@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<!--<input name="shebei" class="form-control" type="hidden" readonly="true" th:value="${shebei}">
+				<input name="list" class="form-control" type="hidden" readonly="true" th:value="${list}">-->
+				<input id="shebeId" name="shebeId" class="form-control" type="hidden" readonly="true" th:value="${shebeId}">
+				<!--<a class="btn btn-success btn-edit disabled" onclick="" shiro:hasPermission="control:songdown:issue">&lt;!&ndash;save()&ndash;&gt;
+					<i class="fa fa-plus"></i> 保存
+				</a>-->
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var prefix = ctx + "basis/songdown";
+        $(function() {
+            var indexs = [];
+            var options = {
+                url: prefix + "/addlistMusic",
+                modalName: "音乐",
+				search: false,
+		        showExport: true,
+                queryParams: queryParams,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+		            checkbox: true
+		        }, {
+					field : 'name', 
+					title : '音乐名称',
+					sortable: true
+				}, {
+					field : 'singer', 
+					title : '演唱者',
+					sortable: true
+				}, {
+					field : 'playtime', 
+					title : '播放时长',
+					sortable: true
+				}, {
+					field : 'filename', 
+					title : '文件名',
+					sortable: true
+				}, {
+					field : 'createtime', 
+					title : '创建时间',
+					sortable: true
+				}, {
+					field : 'fileSrc', 
+					title : '音乐文件地址',
+					sortable: true
+				}]
+            };
+            $.table.init(options);
+        });
+        function queryParams(params) {
+            var shebeId = $("input[name='shebeId']").val();
+            return {
+                shebeId:       shebeId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+        function submitHandler() {
+            //$.operate.save(prefix + "/listadd", $('#form-legal-edit').serialize());
+            var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            var shebeId = $("input[name='shebeId']").val();
+            if (rows.length > 0) {
+                var data = { "ids": rows.join(), "shebeId": shebeId};
+                $.operate.submit(prefix + "/listadd", "post", "json", data);
+                window.parent.openn(100 * rows.length);
+                $.modal.close();
+			}
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]];
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>Map地图</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <link href="../static/css/loading/jquery.mloading.css" th:href="@{/css/loading/jquery.mloading.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+    <div class="row  border-bottom white-bg dashboard-header" style="padding: 2px 2px 0px 2px" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+        <div id="img" class="col-sm-10" style="height: 450px; margin-top: 0px; padding: 0px">
+            <div id="imgg" class="col-sm-12" style="height: 450px">
+                <div id="map" class="col-sm-12" style="height: 450px"></div>
+            </div>
+        </div>
+		<div id="edit" class="col-sm-2"style="height: 450px; padding: 0px">
+            <input id="plPoints" name="plPoints" th:value="${plPoints}" type="hidden" />
+            <input id="plans" name="plans" th:value="${plans}" type="hidden" />
+            <input id="planIdfzls" name="planIdfzls" th:value="${planIdfzls}" type="hidden" />
+            <input id="markerArr" name="markerArr" th:value="${markerArr}" type="hidden" />
+            <input id="color" name="color" th:value="${color}" type="hidden" />
+            <!--<div class="col-sm-12 qqq" style="padding: 0px 20px 0px 0px">
+                <input id="qid" class="form-control" type="hidden" readonly="true" value='' />
+                <span>起点编号</span><input id="qnum" class="form-control" type="text" readonly="true" value='' />
+            </div>
+            <div class="col-sm-12 qqq" style="padding: 0px 20px 0px 0px">
+                <span>起点名称</span><input id="qname" class="form-control" type="text" readonly="true" value='' />
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <input id="bdid" class="form-control" type="hidden" readonly="true" value='' />
+                <span id="zbdnum">标点编号</span><input id="bdnum" class="form-control" type="text" readonly="true" value='' />
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <span id="zbdname">标点名称</span><input id="bdname" class="form-control" type="text" readonly="true" value='' />
+            </div>-->
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <input id="qid" class="form-control" type="hidden" readonly="true" value='' />
+                <span>起点编号</span><input id="qnum" class="form-control" type="text" readonly="true" value='' />
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <input id="bdid" class="form-control" type="hidden" readonly="true" value='15369ea6-d580-4052-8ae7-ff9446b0cec0' />
+                <span id="zbdnum">终点编号</span><input id="bdnum" class="form-control" type="text" readonly="true" value='1006' />
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <select name="planId" id="planId" class="form-control m-b"><!-- onchange="planIdsel()"-->
+                    <option value='z'>请选择</option>
+                </select>
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <select name="planIdfj" id="planIdfj" class="form-control m-b">
+                    <option value='1'>一级</option>
+                    <option value='2'>二级</option>
+                    <option value='3'>三级</option>
+                </select>
+            </div>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+                <select name="planIdfz" id="planIdfz" class="form-control m-b" multiple>
+                </select>
+            </div>
+            <div class="col-sm-12 tp" style="padding: 0px 20px 0px 0px">
+                <!--<a class="btn btn-primary btn-rounded btn-sm oc1" onclick="zd()">设为起点</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc2" onclick="qx()">取消起点</a>-->
+                <a class="btn btn-primary btn-rounded btn-sm oc3" onclick="update()">计算路径</a>
+                <!--<a class="btn btn-primary btn-rounded btn-sm oc4" onclick="yyop()">拨通电话</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc5" onclick="btnUnRegister()">挂断电话</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc6" onclick="spop()">开启视频</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc7" onclick="sped()">关闭视频</a>-->
+                <a class="btn btn-primary btn-rounded btn-sm oc8" onclick="uver()">取消救援</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc9" onclick="fuver()">救援下发</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc10" onclick="jyrem()">解除救援</a>
+                <!--<a class="btn btn-primary btn-rounded btn-sm oc11" onclick="hiddenSMarker()">隐藏设备点</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc12" onclick="showSMarker()">显示设备点</a>-->
+                <a class="btn btn-primary btn-rounded btn-sm oc21" onclick="hiddenXMarker()">隐藏虚拟点</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc22" onclick="showXMarker()">显示虚拟点</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc31" onclick="hiddenTPolyline()">隐藏可用通道</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc32" onclick="showTPolyline()">显示可用通道</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc41" onclick="hiddenFPolyline()">隐藏阻断通道</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc42" onclick="showFPolyline()">显示阻断通道</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc51" onclick="hiddenJFPolyline()">隐藏救援通道</a>
+                <a class="btn btn-primary btn-rounded btn-sm oc52" onclick="showJFPolyline()">显示救援通道</a>
+                <!--<a class="btn btn-primary btn-rounded btn-sm" onclick="testt()">图片处理</a>-->
+            </div>
+        </div>
+        <div style="display:none"><a id="down1" class="down" href="" download="downImg" >截图下载</a></div>
+    </div>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=8d6c8b8f3749aed6b1aff3aad6f40e37"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+    <script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/html2canvas.js}"></script>
+    <script th:src="@{/js/loading/jquery.mloading.js}"></script>
+    <link href="../static/dist/css/select2.min.css" th:href="@{/dist/css/select2.min.css}" rel="stylesheet"/>
+    <script src="../static/dist/js/select2.min.js" th:src="@{/dist/js/select2.min.js}"></script>
+    <script type="text/javascript">
+        var mymap = new Map();
+        var focpoint = false;
+        /*var dtdbd1on = false;
+        var dtdbd2on = false;*/
+        var qnumon = false;
+        var bdnumon = false;
+        var mytc = true;
+        var yjjy2 = window.parent.document.getElementById('yjjy2').innerHTML;
+        $(function() {
+            $("#planIdfz").select2({//可以调$("#XXX")
+                separator: ",",//分隔符
+                tags: false,//true可以手动添加数据
+                placeholder: "请选择"//默认提示语
+                //maximumSelectionLength: 3//最多能够选择的个数
+            });
+            //设置预案列表
+            var plans = JSON.parse($("input[name='plans']").val());
+            for(var i=0;i<plans.length;i++){
+                $("#planId").append("<option value='" + plans[i].id + "'>" + plans[i].name + "</option>");
+            }
+            //
+            var planIdfzls = JSON.parse($("input[name='planIdfzls']").val());
+            for(var i=0;i<planIdfzls.length;i++){
+                $("#planIdfz").append("<option value='" + planIdfzls[i].id + "'>" + planIdfzls[i].name + "</option>");
+            }
+            //
+            //$("#planId").css("display","none");
+            $(".qqq").css("display","none");
+            $(".oc1").css("display","none");
+            $(".oc2").css("display","none");
+            if (yjjy2 == "1") {
+                $(".oc3").css("display","none");
+                $(".oc8").css("display","");
+                $(".oc9").css("display","");
+                $(".oc10").css("display","none");
+            } else if (yjjy2 == "2") {
+                $(".oc3").css("display","none");
+                $(".oc8").css("display","none");
+                $(".oc9").css("display","none");
+                $(".oc10").css("display","");
+            } else {
+                $(".oc3").css("display","");
+                $(".oc8").css("display","none");
+                $(".oc9").css("display","none");
+                $(".oc10").css("display","none");
+            }
+            //$(".oc3").css("display","none");
+            $(".oc4").css("display","none");
+            $(".oc5").css("display","none");
+            $(".oc6").css("display","none");
+            $(".oc7").css("display","none");
+            /*$(".oc8").css("display","none");
+            $(".oc9").css("display","none");
+            $(".oc10").css("display","none");*/
+            $(".oc12").css("display","none");
+            $(".oc22").css("display","none");
+            $(".oc32").css("display","none");
+            $(".oc42").css("display","none");
+            $(".oc52").css("display","none");
+            /*if ($("#color").val() != 0){
+                $(".oc8").css("display","");
+                $(".oc9").css("display","");
+                $(".oc10").css("display","");
+            }*/
+            createMap();//创建地图
+            setMapEvent();//设置地图事件
+            addMarker();//向地图中添加marker
+            addPolyline();//向地图中添加线
+            var b = new BMap.Bounds(new BMap.Point(-125.000000, -55.000000),
+                new BMap.Point(125.000000, 55.000000)); //范围 左下角，右上角
+            BMapLib.AreaRestriction.setBounds(map, b);//已map为中心，已b为范围的地图
+            /*hiddenXMarker();
+            hiddenTPolyline();
+            hiddenFPolyline();*/
+            showSMarker();
+            if (window.parent.document.getElementById('map1').innerHTML != "1"){
+                hiddenSMarker();
+            } else {
+                showSMarker();
+            }
+            if (window.parent.document.getElementById('map2').innerHTML != "1"){
+                hiddenXMarker();
+            } else {
+                showXMarker();
+            }
+            if (window.parent.document.getElementById('map3').innerHTML != "1"){
+                hiddenTPolyline();
+            } else {
+                showTPolyline();
+            }
+            if (window.parent.document.getElementById('map4').innerHTML != "1"){
+                hiddenFPolyline();
+            } else {
+                showFPolyline();
+            }
+        });
+        //创建地图
+        function createMap() {
+            var tileLayer = new BMap.TileLayer();
+            tileLayer.getTilesUrl = function(tileCoord, zoom) {
+                var x = tileCoord.x;
+                var y = tileCoord.y;
+                return '../img/tiles/' + zoom + '/tile-' + x + '_' + y + '.png';
+            };
+            var MyMap = new BMap.MapType('MyMap', tileLayer, {
+                minZoom : 4,
+                maxZoom : 8
+            });
+            var map = new BMap.Map('map', {
+                mapType : MyMap
+            });
+            map.addControl(new BMap.NavigationControl());
+            map.centerAndZoom(new BMap.Point(0, 0), 6);
+            window.map = map;//将map变量存储在全局
+        }
+        //设置地图
+        function setMapEvent() {
+            map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+            map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+            map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+            map.enableKeyboard();//启用键盘上下左右键移动地图
+        }
+        //向地图中添加marker
+        function addMarker() {
+            //标注点数组
+            var markerArr = JSON.parse($("input[name='markerArr']").val());
+            for (var i = 0; i < markerArr.length; i++) {
+                //单个取点
+                var json = markerArr[i];
+                //x
+                var p0 = json.point.split("|")[0];
+                //y
+                var p1 = json.point.split("|")[1];
+                var point = new BMap.Point(p0, p1);
+                var iconImg = createIcon(json);
+                var marker = new BMap.Marker(point, {
+                    icon : iconImg
+                });
+                var label = new BMap.Label(json.title, {
+                    "offset" : new BMap.Size(-json.title.length * 2, -15)
+                });
+                label.setStyle({
+                    //color : "white",
+                    color : "#000",
+                    backgroundColor :"0.05",
+                    //border : "0px none #fff",
+                    border : "0px none #000",
+                    maxWidth : "none"
+                });
+                marker.setLabel(label);
+                map.addOverlay(marker);
+                (function() {
+                    createInfoWindow(json);
+                    marker.addEventListener("click", function() {
+                        var kkkkkk = this.point.lng+"|"+this.point.lat;
+                        var wjkk = mymap.get(kkkkkk).split(",");
+                        /*$("#bdid").val(wjkk[0]);
+                        $("#bdnum").val(wjkk[1]);
+                        $("#bdname").val(wjkk[2]);
+                        bdidc();*/
+                        if (qnumon) {
+                            $("#qid").val(wjkk[0]);
+                            $("#qnum").val(wjkk[1]);
+                        }
+                        /*if (bdnumon) {
+                            $("#bdid").val(wjkk[0]);
+                            $("#bdnum").val(wjkk[1]);
+                        }*/
+                    });
+                })()
+            }
+        }
+        //创建一个Icon
+        function createIcon(json) {
+            var img = "";
+            if (json.type == "0" || json.type == "虚拟点") {
+                img = "../img/icon.png";
+            } else {
+                img = "../img/icon2.png";
+            }
+            var icon = new BMap.Icon(
+                img,
+                new BMap.Size(json.iconW, json.iconH), {
+                    imageOffset : new BMap.Size(json.iconL, json.iconT),
+                    anchor : new BMap.Size(json.iconX, json.iconLB)
+                });
+            return icon;
+        }
+        //创建InfoWindow
+        function createInfoWindow(json) {
+            mymap.set(json.point,json.sid + "," + json.title + "," + json.content);
+        }
+        //打开视频
+        function spop() {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("sp");
+                yyyyy.setAttribute("sssid",$("#bdid").val());
+                yyyyy.click();
+            },3000);
+        }
+        //打开语音
+        function yyop() {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("yy");
+                yyyyy.setAttribute("sssid",$("#bdid").val());
+                yyyyy.click();
+            },3000);
+        }
+        //关闭语音
+        function btnUnRegister () {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("btnHangUp");
+                yyyyy.click();
+            },1000);
+        }
+        //关闭视频
+        function sped() {
+            var frame = window.parent.document.getElementById('myyFrame');
+            setTimeout(function(){
+                var yyyyy = frame.contentWindow.document.getElementById("spe");
+                yyyyy.setAttribute("sssid",$("#bdid").val());
+                yyyyy.click();
+            },3000);
+        }
+        //向地图中添加线函数
+        function addPolyline() {
+            //标注线数组
+            var plPoints = JSON.parse($("input[name='plPoints']").val());
+            for (var i = 0; i < plPoints.length; i++) {
+                var json = plPoints[i];
+                var points = [];
+                for (var j = 0; j < json.points.length; j++) {
+                    var p1 = json.points[j].split("|")[0];
+                    var p2 = json.points[j].split("|")[1];
+                    points.push(new BMap.Point(p1, p2));
+                }
+                var line = new BMap.Polyline(points, {
+                    strokeStyle : json.style,
+                    strokeWeight : json.weight,
+                    strokeColor : json.color,
+                    strokeOpacity : json.opacity
+                });
+                map.addOverlay(line);
+                //点击折线获得折线属性值
+                line.addEventListener("click", function(e){
+                    var be =  e.target.ff;
+                    var op = be[1][0];
+                    var ed = be[1][1];
+                    var sid = op.lat + "|" + op.lng;
+                    var planId = ed.lat + "|" + ed.lng;
+                    $.ajax({
+                        cache : false,
+                        async : true,
+                        type : "POST",
+                        url : ctx + "rescue/trigger/aisleStatus",
+                        data : {
+                            "sid": sid,
+                            "planId": planId
+                        },
+                        beforeSend: function() {
+                            $("body").mLoading("show");
+                        },
+                        complete: function () {
+                            $("body").mLoading("hide");
+                        },
+                        error : function(request) {
+                            $.modal.alertError("系统错误");
+                        },
+                        success : function(data) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            }
+        }
+        //计算路径
+        function update(){
+            //开始点id
+            var sid = $("#qid").val();
+            //结束点id
+            var planId = $("#bdid").val();
+            //预案id
+            var pId = $("#planId").val();
+            //分级
+            var fjId = $("#planIdfj").val();
+            //设备
+            var sbIds = $("#planIdfz").val();
+            var sbId = "";
+            if ("" != sbIds && sbIds != null) {
+                sbId = sbIds.join(',');
+            }
+            if (""==sid) {
+                alert("开始点id is null");
+                return;
+            }
+            if ("z"==pId) {
+                alert("预案id is null");
+                return;
+            }
+            if (""==sbId) {
+                alert("设备 is null");
+                return;
+            }
+            //计算
+            $.ajax({
+                cache : false,
+                async : true,
+                type : "POST",
+                url : ctx + "rescue/trigger/update",
+                data : {
+                    "sid": sid,
+                    "planId": planId,
+                    "pId": pId,
+                    "fjId": fjId,
+                    "sbId": sbId
+                },
+                beforeSend: function() {
+                    $("body").mLoading("show");
+                },
+                complete: function () {
+                    $("body").mLoading("hide");
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                    window.parent.document.getElementById('yjjy2').innerHTML = "1";
+                    window.location.reload();
+                }
+            });
+        }
+        //设为起点
+        function zd () {
+            $(".qqq").css("display","");
+            $("#qid").val($("#bdid").val());
+            $("#qnum").val($("#bdnum").val());
+            $("#qname").val($("#bdname").val());
+            $("#bdid").val("");
+            $("#bdnum").val("");
+            $("#bdname").val("");
+            $("#zbdnum").text("终点编号");
+            $("#zbdname").text("终点名称");
+            bdidc();
+        }
+        //取消起点
+        function qx () {
+            $(".qqq").css("display","none");
+            $("#bdid").val($("#qid").val());
+            $("#bdnum").val($("#qnum").val());
+            $("#bdname").val($("#qname").val());
+            $("#qid").val("");
+            $("#qnum").val("");
+            $("#qname").val("");
+            $("#zbdnum").text("标点编号");
+            $("#zbdname").text("标点名称");
+            bdidc();
+        }
+        //选择标点
+        function bdidc(){
+            if ("" != $("#qnum").val() && "" != $("#bdnum").val()) {
+                //$(".oc3").css("display","");
+                $("#planId").css("display","");
+                $(".oc1").css("display","none");
+                $(".oc4").css("display","none");
+                $(".oc5").css("display","none");
+                $(".oc6").css("display","none");
+                $(".oc7").css("display","none");
+            } else {
+                //$(".oc3").css("display","none");
+                $("#planId").css("display","none");
+                $(".oc1").css("display","");
+                $(".oc4").css("display","");
+                $(".oc5").css("display","");
+                $(".oc6").css("display","");
+                $(".oc7").css("display","");
+            }
+            if ("" != $("#qnum").val()) {
+                $(".oc2").css("display","");
+            } else {
+                $(".oc2").css("display","none");
+            }
+            if ("" != $("#bdnum").val() && "" == $("#qnum").val()) {
+                $(".oc1").css("display","");
+                $(".oc4").css("display","");
+                $(".oc5").css("display","");
+                $(".oc6").css("display","");
+                $(".oc7").css("display","");
+            } else{
+                $(".oc1").css("display","none");
+                $(".oc4").css("display","none");
+                $(".oc5").css("display","none");
+                $(".oc6").css("display","none");
+                $(".oc7").css("display","none");
+            }
+        }
+        //取消救援
+        function uver(){
+            window.parent.document.getElementById('yjjy2').innerHTML = "";
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "rescue/trigger/uver",
+                data : {
+                    "sid": "",
+                    "planId": ""
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                    window.location.reload();
+                }
+            });
+        }
+        //救援下发
+        function fuver(){
+            //设备
+            var sbIds = $("#planIdfz").val();
+            var sbId = "";
+            if ("" != sbIds && sbIds != null) {
+                sbId = sbIds.join(',');
+            }
+            if (""==sbId) {
+                alert("设备 is null");
+                return;
+            }
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "rescue/trigger/fuver",
+                data : {
+                    "sid": sbId,
+                    "planId": ""
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                    window.parent.document.getElementById('yjjy2').innerHTML = "2";
+                    $(".oc3").css("display","none");
+                    $(".oc8").css("display","none");
+                    $(".oc9").css("display","none");
+                    $(".oc10").css("display","");
+                    //window.location.reload();
+                }
+            });
+        }
+        //解除救援
+        function jyrem(){
+            window.parent.document.getElementById('yjjy2').innerHTML = "";
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "rescue/trigger/jyrem",
+                data : {
+                    "sid": "",
+                    "planId": ""
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                    window.location.reload();
+                }
+            });
+        }
+        //隐藏设备点
+        function hiddenSMarker() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if(allOverlay[i].z.uj.imageUrl == "../img/icon2.png"){
+                        allOverlay[i].hide();
+                    }
+                }
+            }
+            $(".oc11").css("display","none");
+            $(".oc12").css("display","");
+            window.parent.document.getElementById('map1').innerHTML = "0";
+        }
+        //显示设备点
+        function showSMarker() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if(allOverlay[i].z.uj.imageUrl == "../img/icon2.png"){
+                        allOverlay[i].show();
+                    }
+                }
+            }
+            $(".oc11").css("display","");
+            $(".oc12").css("display","none");
+            window.parent.document.getElementById('map1').innerHTML = "1";
+        }
+        //隐藏虚拟点
+        function hiddenXMarker() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if(allOverlay[i].z.uj.imageUrl == "../img/icon.png"){
+                        allOverlay[i].hide();
+                    }
+                }
+            }
+            $(".oc21").css("display","none");
+            $(".oc22").css("display","");
+            window.parent.document.getElementById('map2').innerHTML = "0";
+        }
+        //显示虚拟点
+        function showXMarker() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if(allOverlay[i].z.uj.imageUrl == "../img/icon.png"){
+                        allOverlay[i].show();
+                    }
+                }
+            }
+            $(".oc21").css("display","");
+            $(".oc22").css("display","none");
+            window.parent.document.getElementById('map2').innerHTML = "1";
+        }
+        //隐藏可用通道
+        function hiddenTPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#0f0"){
+                        allOverlay[i].hide();
+                    }
+                }
+            }
+            $(".oc31").css("display","none");
+            $(".oc32").css("display","");
+            window.parent.document.getElementById('map3').innerHTML = "0";
+        }
+        //显示可用通道
+        function showTPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#0f0"){
+                        allOverlay[i].show();
+                    }
+                }
+            }
+            $(".oc31").css("display","");
+            $(".oc32").css("display","none");
+            window.parent.document.getElementById('map3').innerHTML = "1";
+        }
+        //隐藏阻断通道
+        function hiddenFPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#00f"){
+                        allOverlay[i].hide();
+                    }
+                }
+            }
+            $(".oc41").css("display","none");
+            $(".oc42").css("display","");
+            window.parent.document.getElementById('map4').innerHTML = "0";
+        }
+        //显示阻断通道
+        function showFPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#00f"){
+                        allOverlay[i].show();
+                    }
+                }
+            }
+            $(".oc41").css("display","");
+            $(".oc42").css("display","none");
+            window.parent.document.getElementById('map4').innerHTML = "1";
+        }
+        //隐藏救援通道
+        function hiddenJFPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#f00"){
+                        allOverlay[i].hide();
+                    }
+                }
+            }
+            $(".oc51").css("display","none");
+            $(".oc52").css("display","");
+        }
+        //显示救援通道
+        function showJFPolyline() {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].z.strokeColor == "#f00"){
+                        allOverlay[i].show();
+                    }
+                }
+            }
+            $(".oc51").css("display","");
+            $(".oc52").css("display","none");
+        }
+        $("#qnum").focus(function(){
+            qnumon = true;
+            if ($("#qid").val() != "" && $("#bdid").val() != "") {
+            }
+        });
+        $("#bdnum").focus(function(){
+            bdnumon = true;
+            if ($("#qid").val() != "" && $("#bdid").val() != "") {
+                $(".occ").css("display","");
+            }
+        });
+        $("#qnum").blur(function(){
+            qnumon = false;
+            if ($("#qid").val() != "" && $("#bdid").val() != "") {
+                $(".occ").css("display","");
+            }
+        });
+        $("#bdnum").blur(function(){
+            bdnumon = false;
+            if ($("#qid").val() != "" && $("#bdid").val() != "") {
+                $(".occ").css("display","");
+            }
+        });
+        //-----------------------------------------------------------
+        function planIdsel() {
+            var pid = $('#planId').val();
+            $('#planIdfz').empty();
+            $('#planIdfz').append("<option value='z'>请选择</option>");
+            if (pid != "q") {
+                $.ajax({
+                    cache : false,
+                    async : true,
+                    type : "POST",
+                    url : ctx + "rescue/trigger/planIdsel",
+                    data : {
+                        "sid": pid,
+                        "planId": ""
+                    },
+                    beforeSend: function() {
+                        //$("body").mLoading("show");
+                    },
+                    complete: function () {
+                        //$("body").mLoading("hide");
+                    },
+                    error : function(request) {
+                    },
+                    success : function(data) {
+                        if (data.code != 0){
+                            alert(data.msg);
+                            return;
+                        } else {
+                        }
+                    }
+                });
+            }
+        }
+        //图片处理
+        function testt() {
+            $.ajax({
+                cache : false,
+                async : true,
+                type : "POST",
+                url : ctx + "rescue/trigger/testt",
+                data : {
+                    "sid": "",
+                    "planId": ""
+                },
+                beforeSend: function() {
+                    //$("body").mLoading("show");
+                },
+                complete: function () {
+                    //$("body").mLoading("hide");
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

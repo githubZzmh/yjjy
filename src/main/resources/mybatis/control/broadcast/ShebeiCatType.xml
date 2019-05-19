@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.broadcast.mapper.ShebeiCatTypeMapper">
+    <resultMap type="ShebeiCatType" id="ShebeiCatTypeResult">
+        <result property="type"    column="type"    />
+        <collection property="shebeiCatList" column="type" select="selectShebeiCatList" />
+    </resultMap>
+    <!-- ofType="ShebeiCat"-->
+    <resultMap type="ShebeiCat" id="ShebeiCatResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="ip"    column="ip"    />
+        <result property="playType"    column="play_type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+    <select id="selectShebeiCatList" parameterType="String" resultMap="ShebeiCatResult">
+        select id, name, type, ip, play_type, remark from p_shebei_cat
+        where type = #{type}
+    </select>
+    <select id="selectShebeiCatTypeList" parameterType="ShebeiCatType" resultMap="ShebeiCatTypeResult">
+        select 'type',
+        <!--<include refid="selectTimedBroadcastVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="creatId != null  and creatId != '' "> and creat_id = #{creatId}</if>
+             <if test="creatTime != null "> and creat_time = #{creatTime}</if>
+         </where>-->
+    </select>
+</mapper>

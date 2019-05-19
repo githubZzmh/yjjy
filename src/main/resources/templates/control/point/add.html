@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-point-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">标点名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">标点编号：</label>
+				<div class="col-sm-8">
+					<input id="numId" name="numId" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">标点类型：</label>
+				<div class="col-sm-8">
+					<!--<input id="type" name="type" class="form-control" type="text">-->
+					<select id="type" name="type" class="form-control">
+						<option value="0">虚拟点</option>
+						<option value="1">设备点</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group" id="zuobiaoX">
+				<label class="col-sm-3 control-label">标点横坐标：</label>
+				<div class="col-sm-8">
+					<input id="pointX" name="pointX" class="form-control" type="text"
+						onkeyup="(this.v=function(){this.value=this.value.replace(/[^\-?\d.]/g,'');
+						this.value = this.value.replace(/^[.]/,'');
+						this.value = this.value.replace('-.', '');
+						this.value = this.value.replace(/\-{2,}/g, '-');}).call(this)" onblur="this.v();">
+				</div>
+			</div>
+			<div class="form-group" id="zuobiaoY">
+				<label class="col-sm-3 control-label">标点纵坐标：</label>
+				<div class="col-sm-8">
+					<input id="pointY" name="pointY" class="form-control" type="text"
+						onkeyup="(this.v=function(){this.value=this.value.replace(/[^\-?\d.]/g,'');
+						this.value = this.value.replace(/^[.]/,'');
+						this.value = this.value.replace('-.', '');
+						this.value = this.value.replace(/\-{2,}/g, '-');}).call(this)" onblur="this.v();">
+				</div>
+			</div>
+			<div class="form-group" id="shebei" style="display: none">
+				<label class="col-sm-3 control-label">设备：</label>
+				<div class="col-sm-8">
+					<!--<input id="shebeiId" name="shebeiId" class="form-control" type="text">-->
+					<select id="shebeiId" name="shebeiId" class="form-control" >
+						<option value="">--请选择--</option>
+						<option th:each="shebei : ${shebeiList}" th:text="${shebei.name}+'   横坐标：'+${shebei.pointX}+'    纵坐标：'+${shebei.pointY}" th:value="${shebei.id}"></option>
+					</select>
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "rescue/point";
+		$(function () {
+
+		});
+
+		$("#type").on('change',function(){
+			var type=$(this).children('option:selected').val();
+			if( type == 1){
+				$("#zuobiaoX").css('display','none');
+				$("#zuobiaoY").css('display','none');
+				$("#shebei").css('display','block');
+			}
+			if( type == 0){
+				$("#zuobiaoX").css('display','block');
+				$("#zuobiaoY").css('display','block');
+				$("#shebei").css('display','none');
+			}
+		});
+		$(function () {
+			$("#shebeiId").on('change',function(){
+				var shebeiId=$(this).children('option:selected').val();
+				$.ajax({
+					cache : true,
+					type : "POST",
+					url : prefix + "/selectShebei",
+					data : {"shebeiId":shebeiId},
+					async : false,
+					error : function(request) {
+						$.modal.alertError("系统错误");
+					},
+					success : function(data) {
+						console.log("data:"+data);
+						$("#pointX").val(data["shebei"].pointX);
+						$("#pointY").val(data["shebei"].pointY);
+					}
+				});
+			});
+		});
+
+		$("#form-point-add").validate({
+			rules:{
+				name:{
+					required:true
+				},
+				numId:{
+					required:true
+				},
+				pointX:{
+					required:true
+				},
+				pointY:{
+					required:true
+				},
+				type:{
+					required:true
+				}
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-point-add').serialize());
+	        }
+	    }
+
+	</script>
+</body>
+</html>

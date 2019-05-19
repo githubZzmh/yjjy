@@ -1,0 +1,250 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .progress {
+        width: 200px;
+    }
+    .content_pic {
+        display: inline-block;
+        margin-left: 20px;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form name=theform>
+        <span><input type="radio" id="one" name="myradio" value="local_name" style="margin-bottom: 16px;"/> 上传文件名字保持本地文件名字</span>
+        <span><input type="text" id='dirname' size=50 hidden></span>
+        <br/>
+        <input type="radio" id="random" name="myradio" value="random_name" checked=true/> 上传文件名字是随机文件名
+
+        <input type="text" id="fileUrls" hidden/>
+        <input type="text" id="fileNames" hidden/>
+        <input type="text" id="flag" th:value="${flag}" hidden/>
+    </form>
+    <br/>
+    <h3>您所选择的文件列表：</h3>
+    <div class="form-group" style="padding-left: 0px!important;">
+        <label class="col-sm-3 control-label" style="padding-left: 0px!important;">指定URL：</label>
+        <div class="col-sm-8" style="padding-left: 0px!important;">
+            <input type="text" id='srcName' class="form-control" placeholder="名称" size=500
+                   style="padding-left: 0px!important;">
+            <input type="text" id='srcPath' class="form-control" placeholder="src路径" size=500
+                   style="padding-left: 0px!important;">
+        </div>
+    </div>
+    <div id="ossfile">你的浏览器不支持flash,Silverlight或者HTML5！</div>
+    <br/>
+    <div id="container">
+        <button class="btn btn-success fileinput-button" type="button" id="selectfiles">选择文件</button>
+        <button class="btn btn-success fileinput-button" type="button" id="postfiles">开始上传</button>
+    </div>
+    <br/>
+    <pre id="console"></pre>
+    <p>&nbsp;</p>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/js/plupload-2.1.2/js/plupload.full.min.js}"></script>
+<script th:src="@{/ajax/libs/base64.js}"></script>
+<script th:src="@{/ajax/libs/crypto1/crypto/crypto.js}"></script>
+<script th:src="@{/ajax/libs/crypto1/hmac/hmac.js}"></script>
+<script th:src="@{/ajax/libs/crypto1/sha1/sha1.js}"></script>
+<script th:src="@{/ajax/libs/crypto1/sha1/sha1.js}"></script>
+<script>
+    $(function () {
+        $("#one").click(function () {
+            $("#dirname").val(random_string(32));
+        });
+        $("#random").click(function () {
+            $("#dirname").val('');
+        });
+    });
+    var flag = false;
+    var map = new Map();
+    accessid = 'LTAILjvfvOQpA0cK';
+    accesskey = 'ebitQbesgaoZc9tfZMeWGWxb9Xjat8';
+    host = 'http://miduoduovip.oss-cn-beijing.aliyuncs.com';
+    g_dirname = '';
+    g_object_name = '';
+    g_object_name_type = '';
+    now = timestamp = Date.parse(new Date()) / 1000;
+    var policyText = {
+        "expiration": "2020-01-01T12:00:00.000Z", //设置该Policy的失效时间，超过这个失效时间之后，就没有办法通过这个policy上传文件了
+        "conditions": [
+            ["content-length-range", 0, 1048576000] // 设置上传文件的大小限制
+        ]
+    };
+    var policyBase64 = Base64.encode(JSON.stringify(policyText));
+    message = policyBase64;
+    var bytes = Crypto.HMAC(Crypto.SHA1, message, accesskey, {asBytes: true});
+    var signature = Crypto.util.bytesToBase64(bytes);
+    function check_object_radio() {
+        var tt = document.getElementsByName('myradio');
+        for (var i = 0; i < tt.length; i++) {
+            if (tt[i].checked) {
+                g_object_name_type = tt[i].value;
+                break;
+            }
+        }
+    }
+    function get_dirname() {
+        dir = document.getElementById("dirname").value;
+        if (dir != '' && dir.indexOf('/') != dir.length - 1) {
+            dir = dir + '/'
+        }
+        g_dirname = dir
+    }
+    function random_string(len) {
+        len = len || 32;
+        var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';//48
+        var maxPos = chars.length;
+        var pwd = '';
+        for (i = 0; i < len; i++) {
+            pwd += chars.charAt(Math.floor(Math.random() * maxPos));
+        }
+        return new Date().getTime() + pwd;
+    }
+    function get_suffix(filename) {
+        pos = filename.lastIndexOf('.');
+        suffix = '';
+        if (pos != -1) {
+            suffix = filename.substring(pos);
+        }
+        return suffix;
+    }
+    function calculate_object_name(filename) {
+        if (g_object_name_type == 'local_name') {
+            g_object_name += "${filename}";
+        }
+        else if (g_object_name_type == 'random_name') {
+            suffix = get_suffix(filename);
+            g_object_name = g_dirname + random_string(32) + suffix;
+        }
+        return ''
+    }
+    function get_uploaded_object_name(filename) {
+        if (g_object_name_type == 'local_name') {
+            tmp_name = g_object_name;
+            tmp_name = tmp_name.replace("${filename}", filename);
+            return tmp_name
+        } else if (g_object_name_type == 'random_name') {
+            return g_object_name
+        }
+    }
+    function set_upload_param(up, filename, fileId, ret) {
+        g_object_name = g_dirname;
+        if (filename != '') {
+            suffix = get_suffix(filename);
+            calculate_object_name(filename);
+        }
+        new_multipart_params = {
+            'key': g_object_name,
+            'policy': policyBase64,
+            'OSSAccessKeyId': accessid,
+            'success_action_status': '200', //让服务端返回200,不然，默认会返回204
+            'signature': signature,
+        };
+        up.setOption({
+            'url': host,
+            'multipart_params': new_multipart_params
+        });
+        up.start();
+        if (ret) {
+            map.set(fileId, get_uploaded_object_name(filename));
+        }
+    }
+    var uploader = new plupload.Uploader({
+        runtimes: 'html5,flash,silverlight,html4',
+        browse_button: 'selectfiles',
+        // multi_selection: $('#flag').val(),
+        multi_selection: $('#flag').val() == "false" ? false : true,//是否可以多选文件
+        container: document.getElementById('container'),
+        flash_swf_url: 'lib/plupload-2.1.2/js/Moxie.swf',
+        silverlight_xap_url: 'lib/plupload-2.1.2/js/Moxie.xap',
+        url: 'http://oss.aliyuncs.com',
+        init: {
+            PostInit: function () {
+                document.getElementById('ossfile').innerHTML = '';
+                document.getElementById('postfiles').onclick = function () {
+                    set_upload_param(uploader, '', '', false);
+                    return false;
+                };
+            },
+            FilesAdded: function (up, files) {
+                plupload.each(files, function (file) {
+                    document.getElementById('ossfile').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ')<br/><span></span><b></b>'
+                        + '<div class="progress"><div class="progress-bar" style="width: 0%"></div></div>'
+                        + '</div>';
+                });
+            },
+            BeforeUpload: function (up, file) {
+                check_object_radio();
+                get_dirname();
+                set_upload_param(up, file.name, file.id, true);
+            },
+            UploadProgress: function (up, file) {
+                var d = document.getElementById(file.id);
+                d.getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+                var prog = d.getElementsByTagName('div')[0];
+                var progBar = prog.getElementsByTagName('div')[0];
+                progBar.style.width = 2 * file.percent + 'px';
+                progBar.setAttribute('aria-valuenow', file.percent);
+            },
+            FileUploaded: function (up, file, info) {
+                if (info.status == 200) {
+                    var url = host + "/" + map.get(file.id);
+                    var tag = document.getElementById(file.id).getElementsByTagName('span')[0];
+                    tag.innerHTML = '<img style="width: 200px;height: 150px;" src="' + url + '"/>';
+                    var fileUrls = $("#fileUrls").val();
+                    $("#fileUrls").val(fileUrls.length > 0 ? fileUrls + "," + url : url);
+                    var fileNames = $("#fileNames").val();
+                    $("#fileNames").val(fileNames.length > 0 ? fileNames + "," + file.name : file.name);
+                } else {
+                    document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = info.response;
+                }
+            },
+            UploadComplete: function (uploader, files) {
+                flag = true;
+            },
+            Error: function (up, err) {
+                document.getElementById('console').appendChild(document.createTextNode("\nError xml:" + err.response));
+            }
+        }
+    });
+    uploader.init();
+    function uploadFiles($fileUrls, $fileNames, layer, index) {
+        var srcPath = $("#srcPath").val();
+        var srcName = $("#srcName").val();
+        if (srcPath && !srcName) {
+            alert("远程文件名称必须填写!");
+            return;
+        }
+        var fileUrls = $("#fileUrls").val();
+        var fileNames = $("#fileNames").val();
+        if (srcPath) {
+            flag = true;
+        }
+        if (flag) {
+            var urls;
+            var names;
+            if (srcPath && fileUrls) {
+                urls = fileUrls + "," + srcPath;
+                names = fileNames + "," + srcName;
+            } else if (srcPath && !fileUrls) {
+                urls = srcPath;
+                names = srcName;
+            } else if (!srcPath && fileUrls) {
+                urls = fileUrls;
+                names = fileNames;
+            }
+            $fileUrls.val(urls);//文件URL，使用“，”拼接
+            $fileNames.val(names);//文件NAME，使用“，”拼接
+            layer.close(index);
+        } else {
+            alert("有文件正在上传中..........");
+        }
+    }
+</script>
+</body>
+</html>

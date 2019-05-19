@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.broadcast.mapper.TimedBroadcastMapper">
+    <resultMap type="TimedBroadcast" id="TimedBroadcastResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="creatId"    column="creat_id"    />
+        <result property="creatTime"    column="creat_time"    />
+    </resultMap>
+	<sql id="selectTimedBroadcastVo">
+        select id, name, creat_id, creat_time from p_timed_broadcast
+    </sql>
+    <select id="selectTimedBroadcastList" parameterType="TimedBroadcast" resultMap="TimedBroadcastResult">
+        <include refid="selectTimedBroadcastVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="creatId != null  and creatId != '' "> and creat_id = #{creatId}</if>
+             <if test="creatTime != null "> and creat_time = #{creatTime}</if>
+         </where>
+    </select>
+    <select id="selectTimedBroadcastById" parameterType="String" resultMap="TimedBroadcastResult">
+        <include refid="selectTimedBroadcastVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertTimedBroadcast" parameterType="TimedBroadcast">
+        insert into p_timed_broadcast
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="creatId != null  and creatId != ''  ">creat_id,</if>
+			<if test="creatTime != null  ">creat_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="creatId != null  and creatId != ''  ">#{creatId},</if>
+			<if test="creatTime != null  ">#{creatTime},</if>
+         </trim>
+    </insert>
+    <update id="updateTimedBroadcast" parameterType="TimedBroadcast">
+        update p_timed_broadcast
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="creatId != null  and creatId != ''  ">creat_id = #{creatId},</if>
+            <if test="creatTime != null  ">creat_time = #{creatTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deleteTimedBroadcastById" parameterType="String">
+        delete from p_timed_broadcast where id = #{id}
+    </delete>
+    <delete id="deleteTimedBroadcastByIds" parameterType="String">
+        delete from p_timed_broadcast where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

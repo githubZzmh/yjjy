@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]];
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>echarts</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="row  border-bottom white-bg dashboard-header" style="padding: 5px 0px 0px 20px" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+    <div id="simple" style="height:400px"></div>
+    <div id="radar" style="height:400px"></div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/echarts/echarts.min.js}"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+<script type="text/javascript">
+    var mySimple = echarts.init(document.getElementById("simple"));
+    var myRadar = echarts.init(document.getElementById("radar"));
+    $(function() {
+        showSimple();
+        showRadar();
+    });
+    function showSimple(){
+        mySimple.clear();
+        mySimple.showLoading({text:'正在努力加载。。。'});
+        $.ajax({
+            type : "GET",
+            url : ctx + "/system/getSimpleOption",
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data){
+                    mySimple.setOption(data);
+                    mySimple.hideLoading();
+                }else{
+                    alert("出错");
+                }
+            }
+        });
+    }
+    function showRadar(){
+        myRadar.clear();
+        myRadar.showLoading({text:'正在努力加载。。。'});
+        $.ajax({
+            type : "GET",
+            url : ctx + "/system/getRadarOption",
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                if(data){
+                    myRadar.setOption(data);
+                    myRadar.hideLoading();
+                }else{
+                    alert("出错");
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

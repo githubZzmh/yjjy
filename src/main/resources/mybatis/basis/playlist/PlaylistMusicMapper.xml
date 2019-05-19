@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.playlist.mapper.PlaylistMusicMapper">
+    
+    <resultMap type="PlaylistMusic" id="PlaylistMusicResult">
+        <result property="id"    column="id"    />
+        <result property="musicId"    column="music_id"    />
+        <result property="playlistId"    column="playlist_id"    />
+        <association property="music"    column="music_id" javaType="Music" resultMap="MusicResult" />
+        <association property="playlist"    column="playlist_id" javaType="Playlist" resultMap="PlaylistResult" />
+    </resultMap>
+    <resultMap type="Music" id="MusicResult">
+        <result property="id"    column="mid"    />
+        <result property="name"    column="mname"    />
+        <result property="singer"    column="singer"    />
+        <result property="playtime"    column="playtime"    />
+        <result property="filename"    column="filename"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="fileSrc"    column="file_src"    />
+    </resultMap>
+    <resultMap type="Playlist" id="PlaylistResult">
+        <result property="id"    column="pid"    />
+        <result property="name"    column="pname"    />
+        <result property="remark"    column="remark"    />
+        <result property="begintime"    column="begintime"    />
+        <result property="endtime"    column="endtime"    />
+    </resultMap>
+	<sql id="selectPlaylistMusicVo">
+        select id, music_id, playlist_id from p_playlist_music
+    </sql>
+	
+    <select id="selectPlaylistMusicList" parameterType="PlaylistMusic" resultMap="PlaylistMusicResult">
+        select pm.id, pm.music_id, pm.playlist_id,
+                m.id as mid, m.name as mname, m.singer, m.playtime, m.filename, m.createtime, m.file_src,
+                p.id as pid, p.name as pname, p.remark, p.begintime, p.endtime
+        from p_playlist_music pm
+        left join p_music m on pm.music_id = m.id
+        left join p_playlist p on pm.playlist_id = p.id
+        <where>
+            <if test="playlist != null  and playlist != '' ">
+                <if test="playlist.id != null  and playlist.id != '' "> and p.id = #{playlist.id}</if>
+                <if test="playlist.name != null  and playlist.name != '' "> and p.name = #{playlist.name}</if>
+            </if>
+            <if test="music != null  and music != ''">
+                <if test="music.name != null  and music.name != '' "> and m.name = #{music.name}</if>
+                <if test="music.singer != null  and music.singer != '' "> and m.singer = #{music.singer}</if>
+            </if>
+        </where>
+    </select>
+    <select id="selectListPlaylistMusicByPlaylistMusic" parameterType="PlaylistMusic" resultMap="PlaylistMusicResult">
+        select pm.id, pm.music_id, pm.playlist_id,
+                m.id as mid, m.name as mname, m.singer, m.playtime, m.filename, m.createtime, m.file_src,
+                p.id as pid, p.name as pname, p.remark, p.begintime, p.endtime
+        from p_playlist_music pm
+        left join p_music m on pm.music_id = m.id
+        left join p_playlist p on pm.playlist_id = p.id
+        where pm.playlist_id = #{playlistId}
+    </select>
+    <select id="selectPlaylistMusicByPlaylistId" parameterType="String" resultMap="MusicResult">
+        select mm.id as mid, mm.name as mname, mm.singer, mm.playtime, mm.filename, mm.createtime, mm.file_src
+        from p_music mm
+        where mm.id not in (
+          select m.id
+          from p_playlist_music pm
+          left join p_music m on pm.music_id = m.id
+          left join p_playlist p on pm.playlist_id = p.id
+          where pm.playlist_id = #{playlistId}
+        )
+    </select>
+    <select id="selectPlaylistMusicById" parameterType="String" resultMap="PlaylistMusicResult">
+        <include refid="selectPlaylistMusicVo"/>
+        where id = #{id}
+    </select>
+    <select id="countPlaylistMusicByPlaylistId" resultType="Integer" parameterType="String">
+	    select count(1) from p_playlist_music where playlist_id=#{playlistId}
+    </select>
+    <insert id="insertPlaylistMusic" parameterType="PlaylistMusic">
+        insert into p_playlist_music
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="musicId != null  and musicId != ''  ">music_id,</if>
+			<if test="playlistId != null  and playlistId != ''  ">playlist_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="musicId != null  and musicId != ''  ">#{musicId},</if>
+			<if test="playlistId != null  and playlistId != ''  ">#{playlistId},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updatePlaylistMusic" parameterType="PlaylistMusic">
+        update p_playlist_music
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="musicId != null  and musicId != ''  ">music_id = #{musicId},</if>
+            <if test="playlistId != null  and playlistId != ''  ">playlist_id = #{playlistId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deletePlaylistMusicById" parameterType="String">
+        delete from p_playlist_music where id = #{id}
+    </delete>
+	
+    <delete id="deletePlaylistMusicByIds" parameterType="String">
+        delete from p_playlist_music where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

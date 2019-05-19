@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.broadcast.mapper.PlaylistTimedBroadcastMapper">
+    <resultMap type="PlaylistTimedBroadcast" id="PlaylistTimedBroadcastResult">
+        <result property="id"    column="id"    />
+        <result property="broadcastId"    column="broadcast_id"    />
+        <result property="playlistId"    column="playlist_id"    />
+        <result property="shebeiCatId"    column="shebei_cat_id"    />
+        <result property="begintime"    column="begintime"    />
+        <result property="endtime"    column="endtime"    />
+        <association property="timedBroadcast"    column="broadcast_id" javaType="TimedBroadcast" resultMap="TimedBroadcastResult" />
+        <association property="playlist"    column="playlist_id" javaType="Playlist" resultMap="PlaylistResult" />
+        <association property="shebeiCat"    column="shebei_cat_id" javaType="ShebeiCat" resultMap="ShebeiCatResult" />
+    </resultMap>
+    <resultMap type="TimedBroadcast" id="TimedBroadcastResult">
+        <result property="id"    column="tid"    />
+        <result property="name"    column="name"    />
+        <result property="creatId"    column="creat_id"    />
+        <result property="creatTime"    column="creat_time"    />
+    </resultMap>
+    <resultMap type="Playlist" id="PlaylistResult">
+        <result property="id"    column="pid"    />
+        <result property="name"    column="pname"    />
+        <result property="remark"    column="remark"    />
+        <result property="begintime"    column="pbtime"    />
+        <result property="endtime"    column="petime"    />
+    </resultMap>
+    <resultMap type="ShebeiCat" id="ShebeiCatResult">
+        <result property="id"    column="scid"    />
+        <result property="name"    column="scname"    />
+        <result property="type"    column="type"    />
+        <result property="ip"    column="ip"    />
+        <result property="playType"    column="play_type"    />
+        <result property="remark"    column="scremark"    />
+    </resultMap>
+	<sql id="selectPlaylistTimedBroadcastVo">
+        select id, broadcast_id, playlist_id, shebei_cat_id, begintime, endtime from p_playlist_timed_broadcast
+    </sql>
+    <select id="selectPlaylistTimedBroadcastList" parameterType="PlaylistTimedBroadcast" resultMap="PlaylistTimedBroadcastResult">
+        <include refid="selectPlaylistTimedBroadcastVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="broadcastId != null  and broadcastId != '' "> and broadcast_id = #{broadcastId}</if>
+             <if test="playlistId != null  and playlistId != '' "> and playlist_id = #{playlistId}</if>
+             <if test="shebeiCatId != null  and shebeiCatId != '' "> and shebei_cat_id = #{shebeiCatId}</if>
+         </where>
+    </select>
+    <select id="selectPlaylistTimedBroadcastCopyList" parameterType="PlaylistTimedBroadcast" resultMap="PlaylistTimedBroadcastResult">
+        select id, broadcast_id, playlist_id, shebei_cat_id, begintime, endtime from p_playlist_timed_broadcast_copy
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="broadcastId != null  and broadcastId != '' "> and broadcast_id = #{broadcastId}</if>
+            <if test="playlistId != null  and playlistId != '' "> and playlist_id = #{playlistId}</if>
+            <if test="shebeiCatId != null  and shebeiCatId != '' "> and shebei_cat_id = #{shebeiCatId}</if>
+            <if test="begintime != null  "> and begintime = #{begintime}</if>
+            <if test="endtime != null  "> and endtime = #{endtime}</if>
+        </where>
+    </select>
+    <select id="selectPlaylistTimedBroadcastById" parameterType="String" resultMap="PlaylistTimedBroadcastResult">
+        <include refid="selectPlaylistTimedBroadcastVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertPlaylistTimedBroadcast" parameterType="PlaylistTimedBroadcast">
+        insert into p_playlist_timed_broadcast
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">id,</if>
+            <if test="broadcastId != null  and broadcastId != ''  ">broadcast_id,</if>
+            <if test="playlistId != null  and playlistId != ''  ">playlist_id,</if>
+            <if test="shebeiCatId != null  and shebeiCatId != ''  ">shebei_cat_id,</if>
+            <if test="begintime != null  ">begintime,</if>
+            <if test="endtime != null  ">endtime,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''  ">#{id},</if>
+            <if test="broadcastId != null  and broadcastId != ''  ">#{broadcastId},</if>
+            <if test="playlistId != null  and playlistId != ''  ">#{playlistId},</if>
+            <if test="shebeiCatId != null  and shebeiCatId != ''  ">#{shebeiCatId},</if>
+            <if test="begintime != null  ">#{begintime},</if>
+            <if test="endtime != null  ">#{endtime},</if>
+        </trim>
+    </insert>
+    <insert id="insertPlaylistTimedBroadcastCopy" parameterType="PlaylistTimedBroadcast">
+        insert into p_playlist_timed_broadcast_copy
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="broadcastId != null  and broadcastId != ''  ">broadcast_id,</if>
+			<if test="playlistId != null  and playlistId != ''  ">playlist_id,</if>
+			<if test="shebeiCatId != null  and shebeiCatId != ''  ">shebei_cat_id,</if>
+            <if test="begintime != null  ">begintime,</if>
+            <if test="endtime != null  ">endtime,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="broadcastId != null  and broadcastId != ''  ">#{broadcastId},</if>
+			<if test="playlistId != null  and playlistId != ''  ">#{playlistId},</if>
+			<if test="shebeiCatId != null  and shebeiCatId != ''  ">#{shebeiCatId},</if>
+            <if test="begintime != null  ">#{begintime},</if>
+            <if test="endtime != null  ">#{endtime},</if>
+         </trim>
+    </insert>
+    <select id="selectPlaylistTimedBroadcastCopyCountByPlaylist" parameterType="PlaylistTimedBroadcast" resultType="Integer">
+        SELECT count(id) FROM p_playlist_timed_broadcast_copy
+        <where>
+            <if test="broadcastId != null  and broadcastId != '' "> and broadcast_id = #{broadcastId}</if>
+            <if test="playlistId != null  and playlistId != '' "> and playlist_id != #{playlistId}</if>
+            <if test="begintime != null  "> and begintime != #{begintime}</if>
+            <if test="endtime != null  "> and endtime != #{endtime}</if>
+            and playlist_id is not null
+        </where>
+    </select>
+    <select id="selectPlaylistTimedBroadcastCopyCountByShebeiCat" parameterType="PlaylistTimedBroadcast" resultType="Integer">
+        SELECT count(id) FROM p_playlist_timed_broadcast_copy
+        <where>
+            <if test="broadcastId != null  and broadcastId != '' "> and broadcast_id = #{broadcastId}</if>
+            <if test="shebeiCatId != null  and shebeiCatId != '' "> and shebei_cat_id != #{shebeiCatId}</if>
+            and shebei_cat_id is not null
+        </where>
+    </select>
+    <update id="updatePlaylistTimedBroadcastCopyByShebeiCat" parameterType="PlaylistTimedBroadcast">
+        update p_playlist_timed_broadcast_copy
+        set playlist_id = #{playlistId},
+            shebei_cat_id = #{shebeiCatId},
+            begintime = #{begintime},
+            endtime = #{endtime}
+        where id = #{id}
+    </update>
+    <update id="updatePlaylistTimedBroadcastByPlaylist" parameterType="PlaylistTimedBroadcast">
+        update p_playlist_timed_broadcast_copy
+        <trim prefix="SET" suffixOverrides=",">
+            playlist_id = null,
+            begintime = null,
+            endtime = null
+        </trim>
+        <where>
+            broadcast_id = #{broadcastId}
+        </where>
+    </update>
+    <update id="updatePlaylistTimedBroadcastByShebeiCat" parameterType="PlaylistTimedBroadcast">
+        update p_playlist_timed_broadcast_copy
+        <trim prefix="SET" suffixOverrides=",">
+            shebei_cat_id = null
+        </trim>
+        <where>
+            broadcast_id = #{broadcastId}
+        </where>
+    </update>
+	<delete id="deletePlaylistTimedBroadcastById" parameterType="String">
+        delete from p_playlist_timed_broadcast where id = #{id}
+    </delete>
+    <delete id="deletePlaylistTimedBroadcastByIds" parameterType="String">
+        delete from p_playlist_timed_broadcast where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectPlaylistTimedBroadcastByBroadcastId" parameterType="String" resultMap="PlaylistTimedBroadcastResult">
+        select ptb.id, ptb.broadcast_id, ptb.playlist_id, ptb.shebei_cat_id, ptb.begintime, ptb.endtime,
+          tb.id as tid, tb.name, tb.creat_id, tb.creat_time,
+          p.id as pid, p.name as pname, p.remark, p.begintime as pbtime, p.endtime as petime,
+          sc.id as scid, sc.name as scname, sc.type, sc.ip, sc.play_type, sc.remark as scremark
+        from p_playlist_timed_broadcast ptb
+        left join p_timed_broadcast tb on ptb.broadcast_id = tb.id
+        left join p_playlist p on ptb.playlist_id = p.id
+        left join p_shebei_cat sc on ptb.shebei_cat_id = sc.id
+        where ptb.broadcast_id = #{broadcastId}
+    </select>
+    <select id="selectPlaylistTimedBroadcastCopyByBroadcastId" parameterType="String" resultMap="PlaylistTimedBroadcastResult">
+        select ptb.id, ptb.broadcast_id, ptb.playlist_id, ptb.shebei_cat_id, ptb.begintime, ptb.endtime,
+          tb.id as tid, tb.name, tb.creat_id, tb.creat_time,
+          p.id as pid, p.name as pname, p.remark, p.begintime as pbtime, p.endtime as petime,
+          sc.id as scid, sc.name as scname, sc.type, sc.ip, sc.play_type, sc.remark as scremark
+        from p_playlist_timed_broadcast_copy ptb
+        left join p_timed_broadcast tb on ptb.broadcast_id = tb.id
+        left join p_playlist p on ptb.playlist_id = p.id
+        left join p_shebei_cat sc on ptb.shebei_cat_id = sc.id
+        where ptb.broadcast_id = #{broadcastId}
+    </select>
+    <select id="selectShebeiCatByBroadcastId" parameterType="String" resultMap="ShebeiCatResult">
+        select DISTINCT
+          sc.id as scid, sc.name as scname, sc.type, sc.ip, sc.play_type, sc.remark as scremark
+        from p_playlist_timed_broadcast_copy ptb
+        left join p_timed_broadcast tb on ptb.broadcast_id = tb.id
+        left join p_playlist p on ptb.playlist_id = p.id
+        left join p_shebei_cat sc on ptb.shebei_cat_id = sc.id
+        where ptb.broadcast_id = #{broadcastId}
+          and ptb.shebei_cat_id is not null
+    </select>
+    <select id="selectPlaylistByBroadcastId" parameterType="String" resultMap="PlaylistResult">
+        select DISTINCT
+          p.id as pid, p.name as pname, p.remark, ptb.begintime as pbtime, ptb.endtime as petime
+        from p_playlist_timed_broadcast_copy ptb
+        left join p_timed_broadcast tb on ptb.broadcast_id = tb.id
+        left join p_playlist p on ptb.playlist_id = p.id
+        left join p_shebei_cat sc on ptb.shebei_cat_id = sc.id
+        where ptb.broadcast_id = #{broadcastId}
+          and ptb.playlist_id is not null
+    </select>
+    <delete id="deletePlaylistTimedBroadcastByBroadcastId" parameterType="String">
+        delete from p_playlist_timed_broadcast where broadcast_id = #{broadcastId}
+    </delete>
+    <delete id="deletePlaylistTimedBroadcastCopyByBroadcastId" parameterType="String">
+        delete from p_playlist_timed_broadcast_copy where broadcast_id = #{broadcastId}
+    </delete>
+    <delete id="deletePlaylistTimedBroadcastCopy" parameterType="PlaylistTimedBroadcast">
+        delete from p_playlist_timed_broadcast_copy
+        <where>
+            <if test="broadcastId != null  and broadcastId != ''  ">and broadcast_id = #{broadcastId}</if>
+            <if test="playlistId != null  and playlistId != ''  ">and playlist_id = #{playlistId}</if>
+            <if test="shebeiCatId != null  and shebeiCatId != ''  ">and shebei_cat_id = #{shebeiCatId}</if>
+            <if test="begintime != null  ">and begintime = #{begintime}</if>
+            <if test="endtime != null  ">and endtime = #{endtime}</if>
+        </where>
+    </delete>
+    <delete id="deletePlaylistTimedBroadcastCopyNull">
+        delete from p_playlist_timed_broadcast_copy
+        where shebei_cat_id is null and playlist_id is null
+    </delete>
+</mapper>

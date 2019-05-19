@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.playlist.mapper.PlaylistMapper">
+    
+    <resultMap type="Playlist" id="PlaylistResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="remark"    column="remark"    />
+        <result property="begintime"    column="begintime"    />
+        <result property="endtime"    column="endtime"    />
+    </resultMap>
+	
+	<sql id="selectPlaylistVo">
+        select id, name, remark, begintime, endtime from p_playlist
+    </sql>
+	
+    <select id="selectPlaylistList" parameterType="Playlist" resultMap="PlaylistResult">
+        <include refid="selectPlaylistVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+             <if test="begintime != null "> and begintime = #{begintime}</if>
+             <if test="endtime != null "> and endtime = #{endtime}</if>
+         </where>
+    </select>
+    
+    <select id="selectPlaylistById" parameterType="String" resultMap="PlaylistResult">
+        <include refid="selectPlaylistVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertPlaylist" parameterType="Playlist">
+        insert into p_playlist
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+			<if test="begintime != null  ">begintime,</if>
+			<if test="endtime != null  ">endtime,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+			<if test="begintime != null  ">#{begintime},</if>
+			<if test="endtime != null  ">#{endtime},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updatePlaylist" parameterType="Playlist">
+        update p_playlist
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="begintime != null  ">begintime = #{begintime},</if>
+            <if test="endtime != null  ">endtime = #{endtime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deletePlaylistById" parameterType="String">
+        delete from p_playlist where id = #{id}
+    </delete>
+	
+    <delete id="deletePlaylistByIds" parameterType="String">
+        delete from p_playlist where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

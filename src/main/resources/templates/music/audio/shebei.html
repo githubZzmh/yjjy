@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+
+				<!--<a class="btn btn-success" onclick="outdownAll()" shiro:hasPermission="music:host:list">
+					播放
+				</a>
+				<a class="btn btn-success" onclick="outdownAll1()" shiro:hasPermission="music:host:list">
+					终止
+				</a>-->
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+	   var datas_synchronization = [[${@dict.getType('synchronization_')}]];
+		var datas_status = [[${@dict.getType('status_')}]];
+	   var status_type = [[${@dict.getType('status_type')}]];
+        var prefix = ctx + "music/host";
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "设备",
+				search: false,
+		        showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'numId',
+					title : '设备编号',
+					sortable: true
+				},
+				{
+					field : 'name', 
+					title : '设备名称',
+					sortable: true
+				},
+				{
+					field : 'synchronization',
+					title : '同步标识',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas_synchronization, value);
+                    }
+				},
+				{
+					field : 'status',
+					title : '设备状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(status_type, value);
+                    }
+				},
+				{
+					field : 'ip', 
+					title : '设备ip',
+					sortable: true
+				},
+				{
+					field : 'gateway',
+					title : '网关',
+					sortable: true
+				},
+				{
+					field : 'mask',
+					title : '子网掩码',
+					sortable: true
+				},
+				{
+					field : 'mac',
+					title : '媒体访问控制地址',
+					sortable: true
+				},
+				{
+					field : 'port',
+					title : '端口号',
+					sortable: true
+				},
+				{
+					field : 'pointX', 
+					title : '设备横坐标',
+					sortable: true
+				},
+				{
+					field : 'pointY', 
+					title : '设备纵坐标',
+					sortable: true
+				},
+				{
+					field : 'volume', 
+					title : '音量',
+					sortable: true
+				},
+				{
+					field : 'creatuserid', 
+					title : '创建人',
+					sortable: true
+				},
+				{
+					field : 'createtime', 
+					title : '创建时间',
+					sortable: true
+				},
+				{
+					title: '操作',
+					align: 'center',
+					formatter: function(value, row, index) {
+						var actions = [];
+						actions.push('<a class="btn btn-success" href="#" onclick="outdownAll(\'' + row.id + '\')"><i class="fa fa-download"></i>播放</a>');
+						actions.push('<a class="btn btn-warning btn-edit" href="#" onclick="outdownAll1(\'' + row.id + '\')"><i class="fa fa-download"></i>停止</a>');
+						return actions.join('');
+					}
+				}]
+            };
+            $.table.init(options);
+        });
+        function outdownAll(ids) {
+           /* var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }*/
+            $.modal.confirm("确认播放该设备吗?", function() {
+                var url = prefix + "/start";
+                var data = {
+                    "ids": ids
+                };
+                $.operate.submit(url, "post", "json", data);
+            });
+        }
+
+
+
+       function outdownAll1(ids) {
+           /*var rows = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+           if (rows.length == 0) {
+               $.modal.alertWarning("请至少选择一条记录");
+               return;
+           }*/
+           $.modal.confirm("确认播放该设备吗?", function() {
+               var url = prefix + "/stop";
+               var data = {
+                   "ids": ids
+               };
+               $.operate.submit(url, "post", "json", data);
+           });
+       }
+    </script>
+</body>
+</html>

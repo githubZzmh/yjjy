@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-aisle-edit" th:object="${aisle}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">：</label>
+				<div class="col-sm-8">
+					<input id="groupId" name="groupId" th:field="*{groupId}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">通道名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" th:field="*{name}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">状态0:可用1:不可用2:占用：</label>
+				<div class="col-sm-8">
+					<input id="status" name="status" th:field="*{status}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">起始点横坐标：</label>
+				<div class="col-sm-8">
+					<input id="beginPointX" name="beginPointX" th:field="*{beginPointX}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">起始点纵坐标：</label>
+				<div class="col-sm-8">
+					<input id="beginPointY" name="beginPointY" th:field="*{beginPointY}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">目标点横坐标：</label>
+				<div class="col-sm-8">
+					<input id="endPointX" name="endPointX" th:field="*{endPointX}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">目标点纵坐标：</label>
+				<div class="col-sm-8">
+					<input id="endPointY" name="endPointY" th:field="*{endPointY}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">前进方向：</label>
+				<div class="col-sm-8">
+					<input id="direction" name="direction" th:field="*{direction}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">前进距离：</label>
+				<div class="col-sm-8">
+					<input id="distance" name="distance" th:field="*{distance}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">区域id：</label>
+				<div class="col-sm-8">
+					<input id="regionId" name="regionId" th:field="*{regionId}" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "rescue/aisle";
+		$("#form-aisle-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/edit", $('#form-aisle-edit').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

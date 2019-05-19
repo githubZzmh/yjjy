@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<input type="hidden" id="planId" name="planId" th:value="${planId}"/>
+							<!--<li>
+								预案id：<input type="text" name="planId"/>
+							</li>
+
+							<li>
+								预案名称：<input type="text" name="name"/>
+							</li>
+
+							<li>
+								领导短信内容：<input type="text" name="leaderMsg"/>
+							</li>
+
+							<li>
+								员工短信内容：<input type="text" name="workerMsg"/>
+							</li>
+
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>-->
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="control:plan:add">
+					<i class="fa fa-plus"></i> 添加
+				</a>
+				<!--<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="basis:planGroup:edit">
+					<i class="fa fa-edit"></i> 修改
+				</a>
+				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="basis:planGroup:remove">
+					<i class="fa fa-remove"></i> 删除
+				</a>
+				<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="basis:planGroup:export">
+						<i class="fa fa-download"></i> 导出
+				 </a>-->
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('control:plan:add')}]];
+        var removeFlag = [[${@permission.hasPermi('control:plan:add')}]];
+        var prefix = ctx + "basis/planGroup";
+		var planId = $("#planId").val();
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add/"+planId,
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+				exportUrl: prefix + "/export",
+				queryParams: $.table.gainParams('formId').queryParams,
+                modalName: "预案分组",
+				search: false,
+		        showExport: true,
+                columns: [
+
+				{
+					field : 'id', 
+					title : '',
+					visible: false
+				},
+				{
+					field : 'planName',
+					title : '预案名称',
+                    formatter: function(value, row, index) {
+                        return '<a href="#" onclick="openWord(\'' + row.id + '\')">' + value + '</a>';
+                    }
+					// sortable: true
+				},
+				{
+					field : 'name', 
+					title : '分组名称',
+					formatter: function(value, row, index) {
+						return '<a href="#" onclick="detail(\'' + row.id + '\')">' + value + '</a>';
+					}
+				},
+				{
+					field : 'leaderMsg', 
+					title : '领导短信内容',
+					// sortable: true
+				},
+				{
+					field : 'workerMsg', 
+					title : '员工短信内容',
+					// sortable: true
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+
+		/*预案分组人员*/
+		function detail(groupId) {
+			var url = ctx + "basis/planPerson/list/" + groupId;
+			createMenuItem(url, "预案分组人员");
+		}
+		function openWord(groupId) {
+            var url = ctx + "basis/planPerson/openWord/" + groupId;
+            window.open(url);
+        }
+    </script>
+</body>
+</html>

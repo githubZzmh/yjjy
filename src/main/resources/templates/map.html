@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]];
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>Map地图</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+    <div class="row  border-bottom white-bg dashboard-header" style="padding: 5px 20px 0px 20px" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+        <div id="img" class="col-sm-10" style="height: 450px; margin-top: 20px">
+            <div id="imgg" class="col-sm-12" style="height: 450px">
+                <div id="map" class="col-sm-12" style="height: 450px"></div>
+            </div>
+        </div>
+		<div id="edit" class="col-sm-2"style="height: 450px">
+            <input id="plPoints" name="plPoints" th:value="${plPoints}" type="hidden" />
+            <input id="plans" name="plans" th:value="${plans}" type="hidden" />
+            <input id="markerArr" name="markerArr" th:value="${markerArr}" type="hidden" />
+        </div>
+        <div style="display:none"><a id="down1" class="down" href="" download="downImg" >截图下载</a></div>
+        <div style=""><a id="jc" onclick='jc()'>解除险情</a></div>
+        <!--display:none-->
+    </div>
+    <div id="page">
+        <iframe id="myFrame" name="myFrame" align="center" width="100%" height="1000" src="http://localhost:9998/yjjy/call.htm"  frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+    </div>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=8d6c8b8f3749aed6b1aff3aad6f40e37"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+    <script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/html2canvas.js}"></script>
+    <script type="text/javascript">
+        var url_fwq = "http://localhost:9998/yjjy/";
+        //$("#page").load(url_fwq + "call.htm");
+        //$("#page").load(url_fwq + "call.htm?shebeiId=" + json.sid);
+        $(function() {
+            createMap();//创建地图
+            setMapEvent();//设置地图事件
+            addMarker();//向地图中添加marker
+            addPolyline();//向地图中添加线
+            var b = new BMap.Bounds(new BMap.Point(-80.000000, -50.000000),
+                new BMap.Point(80.000000, 50.000000)); //范围 左下角，右上角
+            BMapLib.AreaRestriction.setBounds(map, b);//已map为中心，已b为范围的地图
+        });
+        //创建地图
+        function createMap() {
+            var tileLayer = new BMap.TileLayer();
+            tileLayer.getTilesUrl = function(tileCoord, zoom) {
+                var x = tileCoord.x;
+                var y = tileCoord.y;
+                return '../img/tiles/' + zoom + '/tile-' + x + '_' + y + '.png';
+            };
+            var MyMap = new BMap.MapType('MyMap', tileLayer, {
+                minZoom : 4,
+                maxZoom : 8
+            });
+            var map = new BMap.Map('map', {
+                mapType : MyMap
+            });
+            map.addControl(new BMap.NavigationControl());
+            map.centerAndZoom(new BMap.Point(0, 0), 8);
+            window.map = map;//将map变量存储在全局
+        }
+        //设置地图
+        function setMapEvent() {
+            map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+            map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+            map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+            map.enableKeyboard();//启用键盘上下左右键移动地图
+        }
+        //向地图中添加marker
+        function addMarker() {
+            //标注点数组
+            var markerArr = JSON.parse($("input[name='markerArr']").val());
+            for (var i = 0; i < markerArr.length; i++) {
+                //单个取点
+                var json = markerArr[i];
+                //x
+                var p0 = json.point.split("|")[0];
+                //y
+                var p1 = json.point.split("|")[1];
+                var point = new BMap.Point(p0, p1);
+                var iconImg = createIcon(json);
+                var marker = new BMap.Marker(point, {
+                    icon : iconImg
+                });
+                map.addOverlay(marker);
+                (function() {
+                    var _iw = createInfoWindow(json);
+                    marker.addEventListener("click", function() {
+                        this.openInfoWindow(_iw);
+                    });
+                })()
+            }
+        }
+        //创建一个Icon
+        function createIcon(json) {
+            var icon = new BMap.Icon(
+                "../img/icon.png",
+                new BMap.Size(json.iconW, json.iconH), {
+                    imageOffset : new BMap.Size(json.iconL, json.iconT),
+                    anchor : new BMap.Size(json.iconX, json.iconLB)
+                });
+            return icon;
+        }
+        //创建InfoWindow
+        function createInfoWindow(json) {
+            //设置预案列表
+            var plans = JSON.parse($("input[name='plans']").val());
+            var options = "";
+            for(var i=0;i<plans.length;i++){
+                options += "<option value='" + plans[i].id + "'>" + plans[i].name + "</option>";
+            }
+            var iw = new BMap.InfoWindow(
+                "<div id=\"planForm\" class=\"col-sm-12\" style=\"height: 50px\">" +
+                "<input id=\"sid\" name=\"sid\" class=\"form-control\" type=\"hidden\" readonly=\"true\" value='" + json.sid + "' />" +
+                "标点编号：<input id=\"pointNumId\" name=\"pointNumId\" class=\"form-control\" type=\"text\" readonly=\"true\" value='" + json.title + "' />" +
+                "标点名称：<input id=\"pointName\" name=\"pointName\" class=\"form-control\" type=\"text\" readonly=\"true\" value='" + json.content + "' />" +
+                "方案名称：<select name=\"planId\" id=\"planId\" class=\"form-control m-b\">" +
+                options +
+                "</select>" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm\" onclick=\"update()\">提交</a>" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm\" onclick=\"spop(" + "'" + json.sid + "'" + ")\">视频</a>" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm\" onclick=\"yyop(" + "'" + json.sid + "'" + ")\">语音</a>" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm\" onclick=\"sped()\">停止视频</a>" +
+                //"<a class=\"btn btn-primary btn-rounded btn-sm\" target=\"_blank\" href='" + url_fwq + "call.htm?shebeiId=" + json.sid + "'>打开设备</a>" +
+                "</div>"
+            );
+            iw.setWidth(400);
+            return iw;
+        }
+        //-------------------
+        function spop(sid) {
+            var frame = document.getElementById('myFrame');
+            frame.src="http://localhost:9998/yjjy/call.htm?shebeiId=" + sid;
+            setTimeout(function(){
+                myFrame.window.document.getElementById("sp").click();
+            },1000)
+        }
+        function yyop(sid) {
+            //myFrame.window.document.getElementById("yy").click();
+            //var text = document.getElementById("name1").value;
+            var frame = document.getElementById('myFrame');
+            frame.src="http://localhost:9998/yjjy/call.htm?shebeiId=" + sid;
+            setTimeout(function(){
+                myFrame.window.document.getElementById("yy").click();
+            },1000)
+        }
+        function sped() {
+            myFrame.window.document.getElementById("spe").click();
+        }
+        //-------------------
+        //向地图中添加线函数
+        function addPolyline() {
+            //标注线数组
+            var plPoints = JSON.parse($("input[name='plPoints']").val());
+            for (var i = 0; i < plPoints.length; i++) {
+                var json = plPoints[i];
+                var points = [];
+                for (var j = 0; j < json.points.length; j++) {
+                    var p1 = json.points[j].split("|")[0];
+                    var p2 = json.points[j].split("|")[1];
+                    points.push(new BMap.Point(p1, p2));
+                }
+                var line = new BMap.Polyline(points, {
+                    strokeStyle : json.style,
+                    strokeWeight : json.weight,
+                    strokeColor : json.color,
+                    strokeOpacity : json.opacity
+                });
+                map.addOverlay(line);
+                //点击折线获得折线属性值
+                line.addEventListener("click", function(e){
+                    var be =  e.target.ff;
+                    /*var color = e.target.z.strokeColor;
+                    if("#0f0" == color){
+                        e.target.z.strokeColor = "#0ff";
+                    } else {
+                        e.target.z.strokeColor = "#0f0";
+                    }*/
+                    var op = be[1][0];
+                    var ed = be[1][1];
+                    var sid = op.lat + "|" + op.lng;
+                    var planId = ed.lat + "|" + ed.lng;
+                    $.ajax({
+                        cache : true,
+                        type : "POST",
+                        url : ctx + "system/aisleStatus",
+                        data : {
+                            "sid": sid,
+                            "planId": planId
+                        },
+                        async : false,
+                        error : function(request) {
+                            $.modal.alertError("系统错误");
+                        },
+                        success : function(data) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            }
+        }
+        //向地图中添加线函数
+        function addMyPolyline(myplPoints) {
+            for (var i = 0; i < myplPoints.length; i++) {
+                var json = myplPoints[i];
+                var points = [];
+                for (var j = 0; j < json.points.length; j++) {
+                    var p1 = json.points[j].split("|")[0];
+                    var p2 = json.points[j].split("|")[1];
+                    points.push(new BMap.Point(p1, p2));
+                }
+                var sy = new BMap.Symbol(BMap_Symbol_SHAPE_CIRCLE, {
+                    scale: 0.6,//图标缩放大小
+                    strokeColor:'#f0f',//设置矢量图标的线填充颜色
+                    strokeWeight: '2',//设置线宽
+                });
+                var icons = new BMap.IconSequence(sy, '1', '10');
+                var line = new BMap.Polyline(points, {
+                    strokeStyle : json.style,
+                    strokeWeight : json.weight,
+                    strokeColor : json.color,
+                    strokeOpacity : json.opacity,
+                    icons:[icons]
+                });
+                map.addOverlay(line);
+            }
+        }
+        function update(){
+            //设备id
+            var sid = $("input[name='sid']").val();
+            //方案id
+            var planId = $("select[name='planId']").val();
+            //清空百度地图
+            map.closeInfoWindow();
+            //标注线数组
+            //var myplPoints = "";
+            //提交后台演算预案规划路线
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "plan/add",
+                data : {
+                    "sid": sid,
+                    "planId": planId
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (!data.bool){
+                        alert("当前位置无法进行路径引导");
+                        return;
+                    }
+                    //标注线数组
+                    var myplPoints = data.myplPoints;
+                    //显示路线至map图上
+                    addMyPolyline(myplPoints);
+                    //map截图
+                    /*html2canvas($("#imgg"), {
+                        height: $("#imgg").outerHeight() + 20,
+                        width: $("#imgg").outerWidth() + 20,
+                        onrendered: function(canvas) {
+                            //将canvas画布放大若干倍，然后盛放在较小的容器内，就显得不模糊了
+                            var timestamp = Date.parse(new Date());
+                            //把截取到的图片替换到a标签的路径下载
+                            var url = canvas.toDataURL();
+                            $("#down1").attr('href',url);
+                            //下载下来的图片名字
+                            $("#down1").attr('download', 'plan.png');
+                            document.getElementById("down1").click();
+                            map.clearOverlays();
+                            addMarker();
+                            addPolyline();//向地图中添加线
+                        }
+                    });*/
+                }
+            });
+            //提交发送预案文档请求
+            /*$.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "plan/outplan",
+                data : {
+                    "sid": sid,
+                    "planId": planId
+                },
+                async : false,
+                error : function(request) {
+                },
+                success : function(data) {
+                }
+            });*/
+        }
+        //解除险情
+        function jc() {
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : "http://localhost:9998/yjjy/plan/jc",
+                data : {
+                    "sid": "",
+                    "planId": ""
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.bool == "true") {
+                        alert("解除险情成功");
+                    } else {
+                        alert("解除险情失败");
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

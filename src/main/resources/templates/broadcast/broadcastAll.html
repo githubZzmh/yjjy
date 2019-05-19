@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="openAllhh()" shiro:hasPermission="broadcast:all:list">
+					喊话播放
+				</a>
+				<a class="btn btn-success" onclick="endAllhh()" shiro:hasPermission="broadcast:all:list">
+					喊话停止
+				</a>
+				<a class="btn btn-success" onclick="openAllyy()" shiro:hasPermission="broadcast:all:list">
+					声卡播放
+				</a>
+				<a class="btn btn-success" onclick="endAllyy()" shiro:hasPermission="broadcast:all:list">
+					声卡停止
+				</a>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var prefix = ctx + "broadcast/all";
+        //同步标识
+        var datas_synchronization = [[${@dict.getType('synchronization_')}]];
+        //可用状态
+        var datas_status = [[${@dict.getType('status_')}]];
+		var status_type = [[${@dict.getType('status_type')}]];
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+				createUrl: prefix + "/add",
+				updateUrl: prefix + "/edit/{id}",
+				removeUrl: prefix + "/remove",
+                modalName: "音乐",
+				search: false,
+		        showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [
+                    /*{
+                        checkbox: true
+                    },*/
+					{
+						field : 'id',
+						title : '',
+						visible: false
+					},
+                    {
+                        field : 'numId',
+                        title : '设备编号',
+                        sortable: true
+                    },
+                    {
+                        field : 'name',
+                        title : '设备名称',
+                        sortable: true
+                    },
+                    {
+                        field : 'synchronization',
+                        title : '同步标识',
+                        align: 'center',
+                        formatter: function(value, row, index) {
+                            return $.table.selectDictLabel(datas_synchronization, value);
+                        }
+                    },
+                    {
+                        field : 'status',
+                        title : '设备状态',
+                        align: 'center',
+                        formatter: function(value, row, index) {
+                            return $.table.selectDictLabel(status_type, value);
+                        }
+                    },
+                    {
+                        field : 'ip',
+                        title : '设备ip',
+                        sortable: true
+                    },
+                    {
+                        field : 'gateway',
+                        title : '网关',
+                        sortable: true
+                    },
+                    {
+                        field : 'mask',
+                        title : '子网掩码',
+                        sortable: true
+                    },
+                    {
+                        field : 'mac',
+                        title : '媒体访问控制地址',
+                        sortable: true
+                    },
+                    {
+                        field : 'port',
+                        title : '端口号',
+                        sortable: true
+                    },
+                    {
+                        field : 'pointX',
+                        title : '设备横坐标',
+                        sortable: true
+                    },
+                    {
+                        field : 'pointY',
+                        title : '设备纵坐标',
+                        sortable: true
+                    },
+                    {
+                        field : 'volume',
+                        title : '音量',
+                        sortable: true
+                    },
+                    {
+                        field : 'creatuserid',
+                        title : '创建人',
+                        sortable: true
+                    },
+                    {
+                        field : 'createtime',
+                        title : '创建时间',
+                        sortable: true
+                    }
+				]
+            };
+            $.table.init(options);
+        });
+        function openAllhh() {
+        	// alert("000");
+			var url = prefix + "/openhh";
+			var data = {};
+			$.operate.submit(url, "post", "json", data);
+        }
+        function endAllhh() {
+			var url = prefix + "/endhh";
+			var data = {};
+			$.operate.submit(url, "post", "json", data);
+        }
+        function openAllyy() {
+            // alert("000");
+            var url = prefix + "/openyy";
+            var data = {};
+            $.operate.submit(url, "post", "json", data);
+        }
+        function endAllyy() {
+            var url = prefix + "/endyy";
+            var data = {};
+            $.operate.submit(url, "post", "json", data);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<style>
+	#layui-laydate1{
+		top:-2px!important;
+	}
+
+	#layui-laydate2{
+		top:-2px!important;
+	}
+</style>
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-employee-edit">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">事故地点：</label>
+				<div class="col-sm-10">
+					<input id="sgdd" name="sgdd" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">事故类型：</label>
+				<div class="col-sm-10">
+					<select name="sglx" id="sglx" class="form-control m-b">
+						<option value='z'>请选择</option>
+						<option value='0'>矿井强降温降雪天气事故</option>
+						<option value='1'>矿井地面火灾事故</option>
+						<option value='2'>矿井主要通风机事故</option>
+						<option value='3'>矿井瓦斯事故</option>
+						<option value='4'>矿井煤尘爆炸事故</option>
+						<option value='5'>矿井提升运输事故</option>
+						<option value='6'>矿井供电事故</option>
+						<option value='7'>矿井易燃易爆危险化学品事故</option>
+						<option value='8'>矿井压力容器爆炸事故</option>
+						<option value='9'>矿井雨季三防事故</option>
+						<option value='10'>矿井顶板事故</option>
+						<option value='11'>矿井水害事故</option>
+						<option value='12'>矿井下火火灾事故</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">事故等级：</label>
+				<div class="col-sm-10">
+					<select name="sgdj" id="sgdj" class="form-control m-b">
+						<option value='1'>一级</option>
+						<option value='2'>二级</option>
+						<option value='3'>三级</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<a id="sp" class="btn btn-success" onclick="xx()">发送短信</a>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		/*var prefix = ctx + "rescue/aisle";
+		$("#form-employee-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		function returnDictData() {
+			var dictData ={};
+			dictData.dictCode = $("#dictCode").val();
+			dictData.dictValue = $("#dictValue").val();
+			return dictData;
+		}*/
+		function xx() {
+		    var msg = $("#sgdd").val()+"发生"+$("#sgdj option:selected").text()+$("#sglx option:selected").text();
+            alert(msg);
+        }
+	</script>
+</body>
+</html>

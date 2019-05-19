@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+			<input name="catId" id="catId" th:value="${shebeiCat.id}" type="hidden">
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('basis:group:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('basis:group:remove')}]];
+        var datas_synchronization = [[${@dict.getType('synchronization_')}]];
+        var datas_status = [[${@dict.getType('status_')}]];
+		var status_type = [[${@dict.getType('status_type')}]];
+        var prefix = ctx + "basis/groupShebei";
+        var catid = $("#catId").val();
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add/"+catid,
+                removeUrl: prefix + "/remove",
+                queryParams: queryParams,
+                modalName: "设备分组",
+				search: false,
+		        showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+                    field : 'shebei.numId',
+                    title : '设备编号'
+                }, {
+					field : 'shebei.name',
+					title : '设备名称'
+				},
+                {
+					field : 'shebei.synchronization',
+					title : '同步标识',
+					align: 'center',
+					formatter: function(value, row, index) {
+						return $.table.selectDictLabel(datas_synchronization, value);
+					}
+				}, {
+                    field : 'shebei.status',
+					title : '设备状态',
+                    align: 'center',
+					formatter: function(value, row, index) {
+						return $.table.selectDictLabel(status_type, value);
+                    }
+                }, {
+                    field : 'shebei.ip',
+					title : '设备ip'
+				}, {
+                    field : 'shebei.gateway',
+					title : '网关'
+				}, {
+                    field : 'shebei.mask',
+                    title : '子网掩码'
+				}, {
+                    field : 'shebei.mac',
+                    title : '媒体访问控制地址'
+				}, {
+                    field : 'shebei.port',
+                    title : '端口号'
+				}, {
+                    field : 'shebei.pointX',
+                    title : '设备横坐标'
+				}, {
+                    field : 'shebei.pointY',
+                    title : '设备纵坐标'
+				}, {
+                    field : 'shebei.volume',
+                    title : '音量'
+				}, {
+                    field : 'shebei.creatuserid',
+                    title : '创建人'
+                }, {
+                    field : 'shebei.createtime',
+                    title : '创建时间'
+                }]
+            };
+            $.table.init(options);
+        });
+        function queryParams(params) {
+            var catId = $("#catId").val();
+            return {
+                catId:       catId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+    </script>
+</body>
+</html>

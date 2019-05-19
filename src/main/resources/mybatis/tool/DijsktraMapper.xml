@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.tool.map.mapper.DijsktraMapper">
+    <resultMap type="Dijsktra" id="DijsktraResult">
+        <result property="id"    column="id"    />
+        <result property="pointId"    column="point_id"    />
+        <result property="weightNum"    column="weight_num"    />
+        <result property="opstatus"    column="opstatus"    />
+        <result property="larr"    column="larr"    />
+        <result property="alarr"    column="alarr"    />
+        <result property="pointName"    column="point_name"    />
+    </resultMap>
+    <resultMap type="DAisle" id="DAisleResult">
+        <result property="ln"    column="ln"    />
+        <result property="fn"    column="fn"    />
+        <result property="lx"    column="lx"    />
+        <result property="ly"    column="ly"    />
+        <result property="fx"    column="fx"    />
+        <result property="fy"    column="fy"    />
+        <result property="myjz"    column="myjz"    />
+    </resultMap>
+	<sql id="selectDijsktraVo">
+        select id, point_id, weight_num, opstatus, larr, alarr, point_name from p_dijsktra
+    </sql>
+    <select id="selectDijsktraList" parameterType="Dijsktra" resultMap="DijsktraResult">
+        <include refid="selectDijsktraVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="pointId != null  and pointId != '' "> and point_id = #{pointId}</if>
+             <if test="weightNum != null  and weightNum != '' "> and weight_num = #{weightNum}</if>
+             <if test="opstatus != null  and opstatus != '' "> and opstatus = #{opstatus}</if>
+             <if test="larr != null  and larr != '' "> and larr = #{larr}</if>
+             <if test="alarr != null  and alarr != '' "> and alarr = #{alarr}</if>
+        </where>
+        ORDER BY weight_num + 0
+    </select>
+    <select id="selectDijsktra" parameterType="Dijsktra" resultMap="DijsktraResult">
+        <include refid="selectDijsktraVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="pointId != null  and pointId != '' "> and point_id = #{pointId}</if>
+            <if test="weightNum != null  and weightNum != '' "> and weight_num = #{weightNum}</if>
+            <if test="opstatus != null  and opstatus != '' "> and opstatus = #{opstatus}</if>
+            <if test="larr != null  and larr != '' "> and larr = #{larr}</if>
+            <if test="alarr != null  and alarr != '' "> and alarr = #{alarr}</if>
+        </where>
+        ORDER BY weight_num + 0
+    </select>
+
+    <select id="selectMaxWeightNum" resultType="String">
+        select max(weight_num + 0) from p_dijsktra
+    </select>
+
+    <select id="selectByPointId" resultMap="DijsktraResult" parameterType="Dijsktra">
+        select * from p_dijsktra where point_id = #{pointId}
+    </select>
+
+    <select id="selectList" resultMap="DijsktraResult" parameterType="Map">
+        select d.id, d.point_id, d.weight_num, d.opstatus, d.larr, d.alarr, d.point_name,p.name as pName
+        from p_dijsktra d
+        left join p_point p on p.id = d.point_id
+        where 1=1
+        <if test="larr != null  and larr != '' ">
+          and d.larr = #{larr}
+        </if>
+        <if test="list != null">
+            and
+            <foreach item="item" collection="list" index="index" separator="AND">
+                d.weight_num != #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectDijsktraByWeightNumList" parameterType="String" resultMap="DijsktraResult">
+        <include refid="selectDijsktraVo"/>
+        where weight_num in (${value})
+    </select>
+    <select id="selectDijsktraByLarr" parameterType="Dijsktra" resultMap="DijsktraResult">
+        <include refid="selectDijsktraVo"/>
+        where weight_num in (${larr})
+    </select>
+    <select id="selectDijsktraById" parameterType="String" resultMap="DijsktraResult">
+        <include refid="selectDijsktraVo"/>
+        where find_in_set(#{id}, larr)
+        ORDER BY weight_num + 0
+    </select>
+    <select id="selectDijsktraCount" parameterType="String" resultMap="DijsktraResult">
+        select id, point_id, weight_num, opstatus, larr, alarr from p_dijsktra where opstatus = 1 and weight_num in (${value})
+        ORDER BY weight_num + 0
+    </select>
+    <select id="selectDijsktraListByNums" parameterType="String" resultMap="DijsktraResult">
+        select id, point_id, weight_num, opstatus, larr, alarr from p_dijsktra where weight_num in (${value})
+        ORDER BY weight_num + 0
+    </select>
+    <select id="selectDijsktraGroupByAlarr" parameterType="String" resultMap="DijsktraResult">
+        select id, point_id, weight_num, opstatus, larr, alarr from p_dijsktra
+        group BY alarr
+    </select>
+    <select id="selectDijsktraEd" parameterType="String" resultMap="DijsktraResult">
+        select pa.id, pa.point_id, pa.weight_num, pa.opstatus, pa.larr, pa.alarr from p_dijsktra pa
+        left join p_dispersal pl on pa.point_id = pl.point_id
+        where pl.plan_id = #{value}
+    </select>
+    <select id="selectDijsktraOp" parameterType="String" resultMap="DijsktraResult">
+        select id, point_id, weight_num, opstatus, larr, alarr, point_name from p_dijsktra
+        where point_id = #{value}
+    </select>
+    <insert id="insertDijsktra" parameterType="Dijsktra">
+        insert into p_dijsktra
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="pointId != null  and pointId != ''  ">point_id,</if>
+			<if test="weightNum != null  and weightNum != ''  ">weight_num,</if>
+			<if test="opstatus != null  and opstatus != ''  ">opstatus,</if>
+			<if test="larr != null  and larr != ''  ">larr,</if>
+			<if test="alarr != null  and alarr != ''  ">alarr,</if>
+            <if test="pointName != null  and pointName != ''  ">point_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="pointId != null  and pointId != ''  ">#{pointId},</if>
+			<if test="weightNum != null  and weightNum != ''  ">#{weightNum},</if>
+			<if test="opstatus != null  and opstatus != ''  ">#{opstatus},</if>
+			<if test="larr != null  and larr != ''  ">#{larr},</if>
+			<if test="alarr != null  and alarr != ''  ">#{alarr},</if>
+            <if test="pointName != null  and pointName != ''  ">#{pointName},</if>
+         </trim>
+    </insert>
+    <update id="updateDijsktra" parameterType="Dijsktra">
+        update p_dijsktra
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pointId != null  and pointId != ''  ">point_id = #{pointId},</if>
+            <if test="weightNum != null  and weightNum != ''  ">weight_num = #{weightNum},</if>
+            <if test="opstatus != null  and opstatus != ''  ">opstatus = #{opstatus},</if>
+            <if test="larr != null  and larr != ''  ">larr = #{larr},</if>
+            <if test="alarr != null  and alarr != ''  ">alarr = #{alarr},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deleteDijsktraById" parameterType="String">
+        delete from p_dijsktra where id = #{id}
+    </delete>
+    <delete id="deleteDijsktraByIds" parameterType="String">
+        delete from p_dijsktra where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectMYJZ" resultType="String" resultMap="DAisleResult">
+        select z.ln, z.lx, z.ly, z.fx, z.fy, case when z.ln = z.fn then 0 when (pa.distance is null or pa.status != '0') then 1000 else pa.distance end AS myjz
+        from (
+	        select ln,lx,ly,fn,fx,fy FROM(
+		        SELECT pd.weight_num as fn,pp.point_x as fx,pp.point_y as fy FROM `p_dijsktra` pd
+		        LEFT JOIN p_point pp ON pp.id = pd.point_id
+		        where pd.weight_num in(${value})
+		        order by pd.weight_num + 0
+	        ) f,(
+		        SELECT pd.weight_num as ln,pp.point_x as lx,pp.point_y as ly FROM `p_dijsktra` pd
+		        LEFT JOIN p_point pp ON pp.id = pd.point_id
+		        where pd.weight_num in(${value})
+		        order by pd.weight_num + 0
+	        ) l
+        ) z
+        LEFT JOIN p_aisle pa
+        on pa.begin_point_x = z.lx and pa.begin_point_y = z.ly and pa.end_point_x = z.fx and pa.end_point_y = z.fy
+        ORDER BY z.ln + 0,z.fn + 0
+    </select>
+</mapper>

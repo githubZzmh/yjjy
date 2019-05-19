@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.system.echarsDP.mapper.EchartsDateMapper">
+    <resultMap type="EchartsDate" id="EchartsDateResult">
+        <result property="date"    column="date"    />
+        <result property="data_hujiao"    column="data_hujiao"    />
+        <result property="data_dangji"    column="data_dangji"    />
+    </resultMap>
+    <select id="selectEchartsDate" resultMap="EchartsDateResult">
+        select date, data_hujiao, data_dangji
+		from p_echarts_date
+    </select>
+</mapper>

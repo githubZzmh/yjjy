@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-shebei-add">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">设备材料名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">型号规格：</label>
+				<div class="col-sm-8">
+					<input id="specification" name="specification" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">数量：</label>
+				<div class="col-sm-8">
+					<input id="sum" name="sum" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">性能：</label>
+				<div class="col-sm-8">
+					<input id="performance" name="performance" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">运输条件：</label>
+				<div class="col-sm-8">
+					<input id="transport" name="transport" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">存放地点：</label>
+				<div class="col-sm-8">
+					<input id="storage" name="storage" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">责任人：</label>
+				<div class="col-sm-8">
+					<input id="liable" name="liable" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">联系方式：</label>
+				<div class="col-sm-8">
+					<input id="contact" name="contact" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "material/item";
+		$("#form-shebei-add").validate({
+			rules:{
+                name:{
+					required:true,
+				},
+                specification:{
+                    required:true,
+                },
+                sum:{
+                    required:true,
+                },
+                performance:{
+                    required:true,
+                },
+                transport:{
+                    required:true,
+                },
+                storage:{
+                    required:true,
+                },
+                liable:{
+                    required:true,
+                },
+                contact:{
+                    required:true,
+                },
+			}
+		});
+		function submitHandler() {
+	        if ($.validate.form()) {
+                add();
+	        }
+	    }
+        function add() {
+            var name = $("input[name='name']").val();
+            var specification = $("input[name='specification']").val();
+            var sum = $("input[name='sum']").val();
+            var performance = $("input[name='performance']").val();
+            var transport = $("input[name='transport']").val();
+            var storage = $("input[name='storage']").val();
+            var liable = $("input[name='liable']").val();
+            var contact = $("input[name='contact']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "material/item/add",
+                data : {
+                    "name": name,
+                    "specification": specification,
+                    "sum": sum,
+                    "performance": performance,
+                    "transport": transport,
+                    "storage": storage,
+                    "liable": liable,
+                    "contact": contact
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

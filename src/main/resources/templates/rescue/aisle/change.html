@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<style>
+	#layui-laydate1{
+		top:-2px!important;
+	}
+
+	#layui-laydate2{
+		top:-2px!important;
+	}
+</style>
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-employee-edit" th:object="${dictData}">
+            <input id="dictCode" name="dictCode" th:field="*{dictCode}"  type="hidden">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">系数：</label>
+				<div class="col-sm-4">
+					<input id="dictValue" name="dictValue" th:field="*{dictValue}" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "rescue/aisle";
+
+		$("#form-employee-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+
+
+		function returnDictData() {
+			var dictData ={};
+			dictData.dictCode = $("#dictCode").val();
+			dictData.dictValue = $("#dictValue").val();
+			return dictData;
+		}
+
+	</script>
+</body>
+</html>

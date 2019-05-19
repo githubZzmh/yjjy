@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-music-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">音乐名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" class="form-control" type="text">
+				</div>
+			</div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">文件名：</label>
+                <div class="col-sm-8">
+                    <input id="filename" name="filename" class="form-control" type="text" readonly="true" onclick="selectFile()" />
+                    <input id="file" name="file" type="file" class="file" style="display: none;" onchange="setFile(this)">
+                    <audio id="audiotime" name="audiotime" style="display: none;" onloadedmetadata="time(this)"></audio>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">音乐文件地址：</label>
+                <div class="col-sm-8">
+                    <input id="fileSrc" name="fileSrc" class="form-control" type="text" readonly="true">
+                </div>
+            </div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">演唱者：</label>
+				<div class="col-sm-8">
+					<input id="singer" name="singer" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">播放时长：</label>
+				<div class="col-sm-8">
+					<input id="playtime" name="playtime" class="form-control" type="text" readonly="true">
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "basis/audio";
+		$("#form-music-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		function submitHandler() {
+	        if ($.validate.form()) {
+                add();
+	        }
+	    }
+        function add() {
+            var id = $("input[name='id']").val();
+            var name = $("input[name='name']").val();
+            var singer = $("input[name='singer']").val();
+            var playtime = $("input[name='playtime']").val();
+            var filename = $("input[name='filename']").val();
+            var createtime = $("input[name='createtime']").val();
+            var fileSrc = $("input[name='fileSrc']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "basis/audio/add",
+                data : {
+                    "id": id,
+                    "name": name,
+                    "singer": singer,
+                    "playtime": playtime,
+                    "filename": filename,
+                    "createtime": createtime,
+                    "fileSrc": fileSrc
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    var businessId = data.businessId;
+                    //$.file.uploadFile("file-Portrait","notice",businessId);
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+        function selectFile() {
+            $('#file').click();
+            /*var url = ctx + "system/uploadFile/uploadFiles/false";
+            var options = {
+                title: '上传附件',
+                width: "500",
+                height: "500",
+                url: url,
+                callBack: function (index, layero) {
+                    layero.find('iframe')[0].contentWindow.uploadFiles($('#fileUrls'), $('#fileNames'), layer, index);
+                }
+            };
+            $.modal.openOptions(options);*/
+        }
+        function setFile(val) {
+            var file = $("input[name='file']").val();
+            var filename = file.substring(file.lastIndexOf("\\") + 1);
+            var fileSrc = file.substring(0, file.lastIndexOf("\\"));
+            $("input[name='filename']").val(filename);
+            $("input[name='fileSrc']").val(fileSrc);
+            $("input[name='playtime']").val("");
+            var file = val.files[0];
+            var url = URL.createObjectURL(file);
+            $("#audiotime").prop("src", url);
+            /*$("#audiotime")[0].addEventListener("loadedmetadata", function() {
+                var tol = this.duration; //获取总时长
+                alert("时长：" + tol);
+            });*/
+        }
+        function time(val) {
+            var tol = val.duration; //获取总时长
+            tol = test(tol);
+            $("input[name='playtime']").val(tol);
+        }
+        function test(time_distance){
+            // 天时分秒换算
+            var int_day = Math.floor(time_distance/86400);
+            time_distance = time_distance - int_day * 86400;
+            var int_hour = Math.floor(time_distance/3600);
+            time_distance = time_distance - int_hour * 3600;
+            var int_minute = Math.floor(time_distance/60);
+            time_distance = time_distance - int_minute * 60;
+            var int_second = Math.floor(time_distance);
+            // 时分秒为单数时、前面加零
+            if(int_day < 10){
+                int_day = "0" + int_day;
+            }
+            if(int_hour < 10){
+                int_hour = "0" + int_hour;
+            }
+            if(int_minute < 10){
+                int_minute = "0" + int_minute;
+            }
+            if(int_second < 10){
+                int_second = "0" + int_second;
+            }
+            //return int_day+'天'+int_hour+'小时'+int_minute+'分钟'+int_second+'秒';
+            return int_minute + ":" + int_second;
+        }
+	</script>
+</body>
+</html>

@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:inline="javascript">
+        var ctx = [[@{/}]];
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>Map地图</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <link href="../static/css/loading/jquery.mloading.css" th:href="@{/css/loading/jquery.mloading.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="row  border-bottom white-bg dashboard-header" style="padding: 2px 2px 0px 2px" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+    <div id="img" class="col-sm-10" style="height: 450px; margin-top: 0px; padding: 0px">
+        <div id="imgg" class="col-sm-12" style="height: 450px">
+            <div id="map" class="col-sm-12" style="height: 450px"></div>
+        </div>
+    </div>
+    <div id="edit" class="col-sm-2"style="padding: 0px">
+        <input id="plPoints" name="plPoints" th:value="${plPoints}" type="hidden" />
+        <input id="plans" name="plans" th:value="${plans}" type="hidden" />
+        <input id="markerArr" name="markerArr" th:value="${markerArr}" type="hidden" />
+        <input id="color" name="color" th:value="${color}" type="hidden" />
+        <input id="lm" name="lm" th:value="${lm}" type="hidden" />
+        <!--<div class="col-sm-12 qqq" style="padding: 0px 20px 0px 0px">
+            <input id="qid" class="form-control" type="hidden" readonly="true" value='' />
+            <span>起点编号</span><input id="qnum" class="form-control" type="text" readonly="true" value='' />
+        </div>
+        <div class="col-sm-12 qqq" style="padding: 0px 20px 0px 0px">
+            <span>起点名称</span><input id="qname" class="form-control" type="text" readonly="true" value='' />
+        </div>
+        <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+            <input id="bdid" class="form-control" type="hidden" readonly="true" value='' />&lt;!&ndash; onchange="bdidc()"&ndash;&gt;
+            <span id="zbdnum">标点编号</span><input id="bdnum" class="form-control" type="text" readonly="true" value='' />
+        </div>
+        <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+            <span id="zbdname">标点名称</span><input id="bdname" class="form-control" type="text" readonly="true" value='' />
+        </div>-->
+        <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+            <input id="qid" class="form-control" type="hidden" readonly="true" value='' />
+            <span>起点编号</span><input id="qnum" class="form-control" type="text" readonly="true" value='' />
+        </div>
+        <div class="col-sm-12" style="padding: 0px 20px 0px 0px">
+            <input id="bdid" class="form-control" type="hidden" readonly="true" value='' /><!-- onchange="bdidc()"-->
+            <span id="zbdnum">终点编号</span><input id="bdnum" class="form-control" type="text" readonly="true" value='' />
+        </div>
+        <div class="col-sm-12 tp" style="padding: 0px 20px 0px 0px">
+            <!--<a class="btn btn-primary btn-rounded btn-sm oc1" onclick="zd()">设为起点</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc2" onclick="qx()">取消起点</a>-->
+            <a class="btn btn-primary btn-rounded btn-sm oc3" onclick="update()">计算路径</a>
+            <!--<a class="btn btn-primary btn-rounded btn-sm oc4" onclick="yyop()">拨通电话</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc5" onclick="btnUnRegister()">挂断电话</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc6" onclick="spop()">开启视频</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc7" onclick="sped()">关闭视频</a>-->
+            <a class="btn btn-primary btn-rounded btn-sm oc8" onclick="uver()">计算完成</a>
+            <!--<a class="btn btn-primary btn-rounded btn-sm oc11" onclick="hiddenSMarker()">隐藏设备点</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc12" onclick="showSMarker()">显示设备点</a>-->
+            <a class="btn btn-primary btn-rounded btn-sm oc21" onclick="hiddenXMarker()">隐藏虚拟点</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc22" onclick="showXMarker()">显示虚拟点</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc31" onclick="hiddenTPolyline()">隐藏可用通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc32" onclick="showTPolyline()">显示可用通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc41" onclick="hiddenFPolyline()">隐藏阻断通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc42" onclick="showFPolyline()">显示阻断通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc51" onclick="hiddenJFPolyline()">隐藏救援通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm oc52" onclick="showJFPolyline()">显示救援通道</a>
+            <a class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="openTpoint()">添加标点</a>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px;display:none" id="openbd">
+                <div class="col-sm-12" style="padding: 0px" id='al'>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span id='bdbhbh'>标点编号</span><input class="form-control anum" type="text" id='bdbh' />
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span id='bdbhmc'>标点名称</span><input class="form-control anum" type="text" id='bdmc' />
+                        <select class="form-control" id='bdmcl' style="display:none">
+                            <option selected='selected' value="q">请选择</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <select class="form-control" id='newNumberS' onchange="pointhk()">
+                            <option selected='selected'>虚拟点</option>
+                            <option>设备点</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span>点横坐标</span><input class="form-control anum" id='newNumberX' type="text" value="" readonly="true" />
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span>点纵坐标</span><input class="form-control anum" id='newNumberY' type="text" value="" readonly="true" />
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <a class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="mdel2()">删除</a>
+                        <a class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="msave2()">保存</a>
+                    </div>
+                </div>
+            </div>
+            <a class="btn btn-primary btn-rounded btn-sm ocpolyline" onclick="openTpolyline2()">添加通道</a>
+            <div class="col-sm-12" style="padding: 0px 20px 0px 0px;display:none" id="opentd">
+                <div class="col-sm-12" style="padding: 0px" id='bl'>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span>通道名称</span><input class="form-control" type="text" id='tdname' />
+                    </div>
+                    <div id="dtdbd1" class="col-sm-12" style="padding: 0px">
+                        <input id="bdid2opxy" class="form-control" type="hidden" readonly="true" value='' />
+                        <input id="bdid2op" class="form-control" type="hidden" readonly="true" value='' />
+                        <span>通道标点1</span><input  readonly="true" type='text' id='newNumberOP' class="form-control" />
+                    </div>
+                    <div id="dtdbd2" class="col-sm-12" style="padding: 0px">
+                        <input id="bdid2edxy" class="form-control" type="hidden" readonly="true" value='' />
+                        <input id="bdid2ed" class="form-control" type="hidden" readonly="true" value='' />
+                        <span>通道标点2</span><input  readonly="true" type='text' id='newNumberED' class="form-control" />
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <span>通道长度</span><input class="form-control" type="text" id='mytdl' />
+                    </div>
+                    <div class="col-sm-12" style="padding: 0px">
+                        <a class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="xmdel2()">删除</a>
+                        <a class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="xsave2()">保存</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div><div id="jjss"></div><a id="updatebb" class="btn btn-primary btn-rounded btn-sm ocpoint" onclick="updatebb()" style="display: none">播报</a></div>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=8d6c8b8f3749aed6b1aff3aad6f40e37"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+<script src="https://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/html2canvas.js}"></script>
+<script th:src="@{/js/loading/jquery.mloading.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script th:src="@{/yjjy/js/yjjy-ui.js?v=3.0.0}"></script>
+<script type="text/javascript">
+    var coefficient = "";
+    var mymap = new Map();
+    var focpoint = false;
+    var dtdbd1on = false;
+    var dtdbd2on = false;
+    var qnumon = false;
+    var bdnumon = false;
+    var mytc = true;
+    var newNumber = 1;
+    $(function() {
+        $.ajax({
+            cache : false,
+            async : false,
+            type : "POST",
+            url : ctx + "rescue/calculation/coefficient",
+            data : {
+                "sid": "",
+                "planId": ""
+            },
+            beforeSend: function() {
+                $("body").mLoading("show");
+            },
+            complete: function () {
+                $("body").mLoading("hide");
+            },
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                coefficient = data.code;
+                if ("q"!=data.listid) {
+                    var listid = data.listid.split(",");
+                    var listval = data.listval.split(",");
+                    for(var i = 0;i<listid.length;i++){
+                        $('#bdmcl').append(
+                            "<option value="+listid[i]+">"+listval[i]+"</option>"
+                        );
+                    }
+                }
+            }
+        })
+        if (window.parent.document.getElementById('ajjss').innerHTML != ""){
+            $("#jjss").text(window.parent.document.getElementById('ajjss').innerHTML);
+            //计算路径播报
+            $.ajax({
+                cache : false,
+                async : true,
+                type : "POST",
+                url : ctx + "rescue/calculation/updatebb",
+                data : {
+                    "sid": "",
+                    "planId": ""
+                },
+                beforeSend: function() {
+                    //$("body").mLoading("show");
+                },
+                complete: function () {
+                    //$("body").mLoading("hide");
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                }
+            })
+        }
+        $(".qqq").css("display","none");
+        $(".oc1").css("display","none");
+        $(".oc2").css("display","none");
+        //$(".oc3").css("display","none");
+        $(".oc4").css("display","none");
+        $(".oc5").css("display","none");
+        $(".oc6").css("display","none");
+        $(".oc7").css("display","none");
+        $(".oc8").css("display","none");
+        $(".oc12").css("display","none");
+        $(".oc22").css("display","none");
+        $(".oc32").css("display","none");
+        $(".oc42").css("display","none");
+        $(".oc52").css("display","none");
+        if ($("#color").val() != 0){
+            $(".oc8").css("display","");
+        }
+        createMap();//创建地图
+        setMapEvent();//设置地图事件
+        addMarker();//向地图中添加marker
+        addPolyline();//向地图中添加线
+        var b = new BMap.Bounds(new BMap.Point(-125.000000, -55.000000),
+            new BMap.Point(125.000000, 55.000000)); //范围 左下角，右上角
+        BMapLib.AreaRestriction.setBounds(map, b);//已map为中心，已b为范围的地图
+        //注册手动添加标点
+        //map.addEventListener("click", addTpoint);
+        map.addEventListener("click", addTpoint2);
+        /*hiddenXMarker();
+        hiddenTPolyline();
+        hiddenFPolyline();*/
+        showSMarker();
+        if (window.parent.document.getElementById('map1').innerHTML != "1"){
+            hiddenSMarker();
+        } else {
+            showSMarker();
+        }
+        if (window.parent.document.getElementById('map2').innerHTML != "1"){
+            hiddenXMarker();
+        } else {
+            showXMarker();
+        }
+        if (window.parent.document.getElementById('map3').innerHTML != "1"){
+            hiddenTPolyline();
+        } else {
+            showTPolyline();
+        }
+        if (window.parent.document.getElementById('map4').innerHTML != "1"){
+            hiddenFPolyline();
+        } else {
+            showFPolyline();
+        }
+    });
+    //创建地图
+    function createMap() {
+        var tileLayer = new BMap.TileLayer();
+        tileLayer.getTilesUrl = function(tileCoord, zoom) {
+            var x = tileCoord.x;
+            var y = tileCoord.y;
+            return '../img/tiles/' + zoom + '/tile-' + x + '_' + y + '.png';
+        };
+        var MyMap = new BMap.MapType('MyMap', tileLayer, {
+            minZoom : 4,
+            maxZoom : 8
+        });
+        var map = new BMap.Map('map', {
+            mapType : MyMap
+        });
+        map.addControl(new BMap.NavigationControl());
+        map.centerAndZoom(new BMap.Point(0, 0), 6);
+        window.map = map;//将map变量存储在全局
+    }
+    //设置地图
+    function setMapEvent() {
+        map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+    }
+    //向地图中添加marker
+    function addMarker() {
+        //标注点数组
+        var markerArr = JSON.parse($("input[name='markerArr']").val());
+        for (var i = 0; i < markerArr.length; i++) {
+            //单个取点
+            var json = markerArr[i];
+            //x
+            var p0 = json.point.split("|")[0];
+            //y
+            var p1 = json.point.split("|")[1];
+            var point = new BMap.Point(p0, p1);
+            var iconImg = createIcon(json);
+            var marker = new BMap.Marker(point, {
+                icon : iconImg
+            });
+            var label = new BMap.Label(json.title, {
+                "offset" : new BMap.Size(-json.title.length * 2, -15)
+            });
+            label.setStyle({
+                //color : "white",
+                color : "#000",
+                backgroundColor :"0.05",
+                //border : "0px none #fff",
+                border : "0px none #000",
+                maxWidth : "none"
+            });
+            marker.setLabel(label);
+            map.addOverlay(marker);
+            (function() {
+                createInfoWindow(json);
+                marker.addEventListener("click", function() {
+                    //this.openInfoWindow(_iw);
+                    var kkkkkk = this.point.lng+"|"+this.point.lat;
+                    var wjkk = mymap.get(kkkkkk).split(",");
+                    /*$("#bdid").val(wjkk[0]);
+                    $("#bdnum").val(wjkk[1]);
+                    $("#bdname").val(wjkk[2]);*/
+                    //选择标点
+                    //bdidc();
+                    if (dtdbd1on) {
+                        $("#bdid2opxy").val(kkkkkk);
+                        $("#bdid2op").val(wjkk[0]);
+                        $("#newNumberOP").val(wjkk[1]);
+                    }
+                    if (dtdbd2on) {
+                        $("#bdid2edxy").val(kkkkkk);
+                        $("#bdid2ed").val(wjkk[0]);
+                        $("#newNumberED").val(wjkk[1]);
+                    }
+                    if (qnumon) {
+                        $("#qid").val(wjkk[0]);
+                        $("#qnum").val(wjkk[1]);
+                    }
+                    if (bdnumon) {
+                        $("#bdid").val(wjkk[0]);
+                        $("#bdnum").val(wjkk[1]);
+                    }
+                    if (this.z.uj.imageUrl == "../img/icon2.png" && mytc) {
+                        var url = ctx + "rescue/calculation/edit/" + wjkk[0];
+                        $.modal.openhtml(wjkk[1], url, 300, 200);
+                    }
+                    if ("" != $("#bdid2edxy").val() && "" != $("#bdid2opxy").val()) {
+                        //
+                        var opxy = $("#bdid2opxy").val().split("|");
+                        var edxy = $("#bdid2edxy").val().split("|");
+                        var xxxxx = opxy[0] - edxy[0];
+                        var yyyyy = opxy[1] - edxy[1];
+                        var pfg = Math.round(Math.sqrt(Math.pow(xxxxx,2) + Math.pow(yyyyy,2)) * 100000) / 100000;
+                        $("#mytdl").val(coefficient*pfg);
+                    }
+                });
+            })()
+        }
+    }
+    //创建一个Icon
+    function createIcon(json) {
+        var img = "";
+        if (json.type == "0" || json.type == "虚拟点") {
+            img = "../img/icon.png";
+        } else {
+            img = "../img/icon2.png";
+        }
+        var icon = new BMap.Icon(
+            img,
+            new BMap.Size(json.iconW, json.iconH), {
+                imageOffset : new BMap.Size(json.iconL, json.iconT),
+                anchor : new BMap.Size(json.iconX, json.iconLB)
+            });
+        return icon;
+    }
+    //创建InfoWindow
+    function createInfoWindow(json) {
+        mymap.set(json.point,json.sid + "," + json.title + "," + json.content);
+    }
+    //打开视频
+    function spop(sssid) {
+        var frame = window.parent.document.getElementById('myyFrame');
+        setTimeout(function(){
+            var yyyyy = frame.contentWindow.document.getElementById("sp");
+            yyyyy.setAttribute("sssid",sssid);//$("#bdid").val()
+            yyyyy.click();
+        },3000);
+    }
+    //打开语音
+    function yyop(sssid) {
+        var frame = window.parent.document.getElementById('myyFrame');
+        setTimeout(function(){
+            var yyyyy = frame.contentWindow.document.getElementById("yy");
+            yyyyy.setAttribute("sssid",sssid);//$("#bdid").val()
+            yyyyy.click();
+        },3000);
+    }
+    //关闭语音
+    function btnUnRegister (sssid) {
+        var frame = window.parent.document.getElementById('myyFrame');
+        setTimeout(function(){
+            var yyyyy = frame.contentWindow.document.getElementById("btnHangUp");
+            yyyyy.click();
+        },1000);
+    }
+    //关闭视频
+    function sped(sssid) {
+        var frame = window.parent.document.getElementById('myyFrame');
+        setTimeout(function(){
+            var yyyyy = frame.contentWindow.document.getElementById("spe");
+            yyyyy.setAttribute("sssid",sssid);
+            yyyyy.click();
+        },3000);
+    }
+    //向地图中添加线函数
+    function addPolyline() {
+        //标注线数组
+        var plPoints = JSON.parse($("input[name='plPoints']").val());
+        for (var i = 0; i < plPoints.length; i++) {
+            var json = plPoints[i];
+            var points = [];
+            for (var j = 0; j < json.points.length; j++) {
+                var p1 = json.points[j].split("|")[0];
+                var p2 = json.points[j].split("|")[1];
+                points.push(new BMap.Point(p1, p2));
+            }
+            var line = new BMap.Polyline(points, {
+                strokeStyle : json.style,
+                strokeWeight : json.weight,
+                strokeColor : json.color,
+                strokeOpacity : json.opacity
+            });
+            map.addOverlay(line);
+            //点击折线获得折线属性值
+            line.addEventListener("click", function(e){
+                var be =  e.target.ff;
+                if (e.target.z.strokeColor == "#f00") {
+                    return;
+                }
+                var op = be[1][0];
+                var ed = be[1][1];
+                var sid = op.lat + "|" + op.lng;
+                var planId = ed.lat + "|" + ed.lng;
+                $.ajax({
+                    cache : false,
+                    async : true,
+                    type : "POST",
+                    url : ctx + "rescue/calculation/aisleStatus",
+                    data : {
+                        "sid": sid,
+                        "planId": planId
+                    },
+                    beforeSend: function() {
+                        $("body").mLoading("show");
+                    },
+                    complete: function () {
+                        $("body").mLoading("hide");
+                    },
+                    error : function(request) {
+                        $.modal.alertError("系统错误");
+                    },
+                    success : function(data) {
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+    }
+    //计算路径
+    function update(){
+        //开始点id
+        var sid = $("#qid").val();
+        //结束点id
+        var planId = $("#bdid").val();
+        //计算
+        $.ajax({
+            cache : false,
+            async : true,
+            type : "POST",
+            url : ctx + "rescue/calculation/update",
+            data : {
+                "sid": sid,
+                "planId": planId
+            },
+            beforeSend: function() {
+                $("body").mLoading("show");
+            },
+            complete: function () {
+                $("body").mLoading("hide");
+            },
+            error : function(request) {
+            },
+            success : function(data) {
+                if (data.code != 0){
+                    alert(data.msg);
+                    return;
+                }
+                var ajjss = window.parent.document.getElementById('ajjss');
+                ajjss.innerHTML = data.msg;
+                window.location.reload();
+            }
+        });
+    }
+    //设为起点
+    function zd () {
+        $(".qqq").css("display","");
+        $("#qid").val($("#bdid").val());
+        $("#qnum").val($("#bdnum").val());
+        $("#qname").val($("#bdname").val());
+        $("#bdid").val("");
+        $("#bdnum").val("");
+        $("#bdname").val("");
+        $("#zbdnum").text("终点编号");
+        $("#zbdname").text("终点名称");
+        bdidc();
+    }
+    //取消起点
+    function qx () {
+        $(".qqq").css("display","none");
+        $("#bdid").val($("#qid").val());
+        $("#bdnum").val($("#qnum").val());
+        $("#bdname").val($("#qname").val());
+        $("#qid").val("");
+        $("#qnum").val("");
+        $("#qname").val("");
+        $("#zbdnum").text("标点编号");
+        $("#zbdname").text("标点名称");
+        bdidc();
+    }
+    //选择标点
+    function bdidc(){
+        if ("" != $("#qnum").val() && "" != $("#bdnum").val()) {
+            //$(".oc3").css("display","");
+            $(".oc1").css("display","none");
+            $(".oc4").css("display","none");
+            $(".oc5").css("display","none");
+            $(".oc6").css("display","none");
+            $(".oc7").css("display","none");
+        } else {
+            //$(".oc3").css("display","none");
+            $(".oc1").css("display","");
+            $(".oc4").css("display","");
+            $(".oc5").css("display","");
+            $(".oc6").css("display","");
+            $(".oc7").css("display","");
+        }
+        if ("" != $("#qnum").val()) {
+            $(".oc2").css("display","");
+        } else {
+            $(".oc2").css("display","none");
+        }
+        if ("" != $("#bdnum").val() && "" == $("#qnum").val()) {
+            $(".oc1").css("display","");
+            $(".oc4").css("display","");
+            $(".oc5").css("display","");
+            $(".oc6").css("display","");
+            $(".oc7").css("display","");
+        } else{
+            $(".oc1").css("display","none");
+            $(".oc4").css("display","none");
+            $(".oc5").css("display","none");
+            $(".oc6").css("display","none");
+            $(".oc7").css("display","none");
+        }
+    }
+    //计算完成
+    function uver(){
+        $.ajax({
+            cache : true,
+            async : false,
+            type : "POST",
+            url : ctx + "rescue/calculation/uver",
+            data : {
+                "sid": "",
+                "planId": ""
+            },
+            error : function(request) {
+            },
+            success : function(data) {
+                if (data.code != 0){
+                    alert(data.msg);
+                    return;
+                }
+                window.parent.document.getElementById('ajjss').innerHTML = "";
+                window.location.reload();
+            }
+        });
+    }
+    //隐藏设备点
+    function hiddenSMarker() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].z.uj.imageUrl == "../img/icon2.png"){
+                    allOverlay[i].hide();
+                }
+            }
+        }
+        $(".oc11").css("display","none");
+        $(".oc12").css("display","");
+        window.parent.document.getElementById('map1').innerHTML = "0";
+    }
+    //显示设备点
+    function showSMarker() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].z.uj.imageUrl == "../img/icon2.png"){
+                    allOverlay[i].show();
+                }
+            }
+        }
+        $(".oc11").css("display","");
+        $(".oc12").css("display","none");
+        window.parent.document.getElementById('map1').innerHTML = "1";
+    }
+    //隐藏虚拟点
+    function hiddenXMarker() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].z.uj.imageUrl == "../img/icon.png"){
+                    allOverlay[i].hide();
+                }
+            }
+        }
+        $(".oc21").css("display","none");
+        $(".oc22").css("display","");
+        window.parent.document.getElementById('map2').innerHTML = "0";
+    }
+    //显示虚拟点
+    function showXMarker() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].z.uj.imageUrl == "../img/icon.png"){
+                    allOverlay[i].show();
+                }
+            }
+        }
+        $(".oc21").css("display","");
+        $(".oc22").css("display","none");
+        window.parent.document.getElementById('map2').innerHTML = "1";
+    }
+    //隐藏可用通道
+    function hiddenTPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#0f0"){
+                    allOverlay[i].hide();
+                }
+            }
+        }
+        $(".oc31").css("display","none");
+        $(".oc32").css("display","");
+        window.parent.document.getElementById('map3').innerHTML = "0";
+    }
+    //显示可用通道
+    function showTPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#0f0"){
+                    allOverlay[i].show();
+                }
+            }
+        }
+        $(".oc31").css("display","");
+        $(".oc32").css("display","none");
+        window.parent.document.getElementById('map3').innerHTML = "1";
+    }
+    //隐藏阻断通道
+    function hiddenFPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#00f"){
+                    allOverlay[i].hide();
+                }
+            }
+        }
+        $(".oc41").css("display","none");
+        $(".oc42").css("display","");
+        window.parent.document.getElementById('map4').innerHTML = "0";
+    }
+    //显示阻断通道
+    function showFPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#00f"){
+                    allOverlay[i].show();
+                }
+            }
+        }
+        $(".oc41").css("display","");
+        $(".oc42").css("display","none");
+        window.parent.document.getElementById('map4').innerHTML = "1";
+    }
+    //隐藏救援通道
+    function hiddenJFPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#f00"){
+                    allOverlay[i].hide();
+                }
+            }
+        }
+        $(".oc51").css("display","none");
+        $(".oc52").css("display","");
+    }
+    //显示救援通道
+    function showJFPolyline() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                if(allOverlay[i].z.strokeColor == "#f00"){
+                    allOverlay[i].show();
+                }
+            }
+        }
+        $(".oc51").css("display","");
+        $(".oc52").css("display","none");
+    }
+    //手动添加标点
+    function addTpoint(e) {
+        if (focpoint) {
+            $('#openbd').append(
+                "<div class=\"col-sm-12\" style=\"padding: 0px\" id='al" + newNumber + "'>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<span>标点编号</span><input class=\"form-control anum\" type=\"text\" id='bdbh" + newNumber + "' />" +
+                "</div>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<span>标点名称</span><input class=\"form-control anum\" type=\"text\" id='bdmc" + newNumber + "' />" +
+                "</div>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<select class=\"form-control\" id='newNumberS" + newNumber + "'>" +
+                "<option selected='selected'>虚拟点</option>" +
+                "<option>设备点</option>" +
+                "</select>" +
+                "</div>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<span>点横坐标</span><input class=\"form-control anum\" id='newNumberX" + newNumber + "' type=\"text\" value=" + e.point.lng + " readonly=\"true\" />" +
+                "</div>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<span>点纵坐标</span><input class=\"form-control anum\" id='newNumberY" + newNumber + "' type=\"text\" value=" + e.point.lat + " readonly=\"true\" />" +
+                "</div>" +
+                "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm ocpoint\" onclick=\"mdel(" + newNumber + ")\">删除</a>" +
+                "<a class=\"btn btn-primary btn-rounded btn-sm ocpoint\" onclick=\"msave(" + newNumber + ")\">保存</a>" +
+                "</div>" +
+                "</div>");
+            var point = new BMap.Point(e.point.lng, e.point.lat);
+            var img = "../img/icon.png";
+            var iconImg = new BMap.Icon(
+                img,
+                new BMap.Size(11, 16), {
+                    imageOffset : new BMap.Size(-5, -6),
+                    anchor : new BMap.Size(6, 14)
+                });
+            var marker = new BMap.Marker(point, {
+                icon : iconImg
+            });
+            //添加标记
+            map.addOverlay(marker);
+            //标记拖动
+            marker.enableDragging();
+            marker.addEventListener("dragend", function(e){
+                $('#newNumberX' + (newNumber - 1) + '').val(e.point.lng);
+                $('#newNumberY' + (newNumber - 1) + '').val(e.point.lat);
+            });
+            $('#newNumberS' + newNumber + '').change(function(){
+                var allOverlay = map.getOverlays();
+                //第几标点
+                var nnm = this.id.substring(this.id.length - 1, this.id.length);
+                if ("设备点" == $(this).children('option:selected').text()) {
+                    for (var i = 0; i < allOverlay.length ; i++){
+                        if(typeof(allOverlay[i].z.uj) != "undefined") {
+                            if(allOverlay[i].point.lng == $('#newNumberX' + nnm + '').val() &&
+                                allOverlay[i].point.lat == $('#newNumberY' + nnm + '').val()){
+                                map.removeOverlay(allOverlay[i]);
+                                var newm = new BMap.Marker(
+                                    new BMap.Point(
+                                        $('#newNumberX' + nnm + '').val(),
+                                        $('#newNumberY' + nnm + '').val()
+                                    ),
+                                    {
+                                        icon : new BMap.Icon(
+                                            "../img/icon2.png",
+                                            new BMap.Size(11, 16), {
+                                                imageOffset : new BMap.Size(-5, -6),
+                                                anchor : new BMap.Size(6, 14)
+                                            }
+                                        )
+                                    }
+                                );
+                                //添加标记
+                                map.addOverlay(newm);
+                                //标记拖动
+                                newm.enableDragging();
+                                newm.addEventListener("dragend", function(e){
+                                    $('#newNumberX' + nnm + '').val(e.point.lng);
+                                    $('#newNumberY' + nnm + '').val(e.point.lat);
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < allOverlay.length ; i++){
+                        if(typeof(allOverlay[i].z.uj) != "undefined") {
+                            if(allOverlay[i].point.lng == $('#newNumberX' + nnm + '').val() &&
+                                allOverlay[i].point.lat == $('#newNumberY' + nnm + '').val()){
+                                map.removeOverlay(allOverlay[i]);
+                                var newm =new BMap.Marker(
+                                    new BMap.Point(
+                                        $('#newNumberX' + nnm + '').val(),
+                                        $('#newNumberY' + nnm + '').val()
+                                    ),
+                                    {
+                                        icon : new BMap.Icon(
+                                            "../img/icon.png",
+                                            new BMap.Size(11, 16), {
+                                                imageOffset : new BMap.Size(-5, -6),
+                                                anchor : new BMap.Size(6, 14)
+                                            }
+                                        )
+                                    }
+                                );
+                                //添加标记
+                                map.addOverlay(newm);
+                                //标记拖动
+                                newm.enableDragging();
+                                newm.addEventListener("dragend", function(e){
+                                    $('#newNumberX' + nnm + '').val(e.point.lng);
+                                    $('#newNumberY' + nnm + '').val(e.point.lat);
+                                });
+                            }
+                        }
+                    }
+                }
+                //newNumber += 1;
+            });
+            focpoint = false;
+            newNumber += 1;
+        }
+    }
+    //手动添加标点
+    function addTpoint2(e) {
+        if (focpoint) {
+            $('#openbd').css("display","");
+            var point = new BMap.Point(e.point.lng, e.point.lat);
+            $('#newNumberX').val(e.point.lng);
+            $('#newNumberY').val(e.point.lat);
+            var img = "../img/icon.png";
+            if ("虚拟点"!=$("#newNumberS").val()) {
+                img = "../img/icon2.png";
+            }
+            var iconImg = new BMap.Icon(
+                img,
+                new BMap.Size(11, 16), {
+                    imageOffset : new BMap.Size(-5, -6),
+                    anchor : new BMap.Size(6, 14)
+                });
+            var marker = new BMap.Marker(point, {
+                icon : iconImg
+            });
+            //添加标记
+            map.addOverlay(marker);
+            //标记拖动
+            marker.enableDragging();
+            marker.addEventListener("dragend", function(e){
+                $('#newNumberX').val(e.point.lng);
+                $('#newNumberY').val(e.point.lat);
+            });
+            $('#newNumberS').change(function(){
+                var allOverlay = map.getOverlays();
+                //第几标点
+                if ("设备点" == $(this).children('option:selected').text()) {
+                    for (var i = 0; i < allOverlay.length ; i++){
+                        if(typeof(allOverlay[i].z.uj) != "undefined") {
+                            if(allOverlay[i].point.lng == $('#newNumberX').val() &&
+                                allOverlay[i].point.lat == $('#newNumberY').val()){
+                                map.removeOverlay(allOverlay[i]);
+                                var newm = new BMap.Marker(
+                                    new BMap.Point(
+                                        $('#newNumberX').val(),
+                                        $('#newNumberY').val()
+                                    ),
+                                    {
+                                        icon : new BMap.Icon(
+                                            "../img/icon2.png",
+                                            new BMap.Size(11, 16), {
+                                                imageOffset : new BMap.Size(-5, -6),
+                                                anchor : new BMap.Size(6, 14)
+                                            }
+                                        )
+                                    }
+                                );
+                                //添加标记
+                                map.addOverlay(newm);
+                                //标记拖动
+                                newm.enableDragging();
+                                newm.addEventListener("dragend", function(e){
+                                    $('#newNumberX').val(e.point.lng);
+                                    $('#newNumberY').val(e.point.lat);
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < allOverlay.length ; i++){
+                        if(typeof(allOverlay[i].z.uj) != "undefined") {
+                            if(allOverlay[i].point.lng == $('#newNumberX').val() &&
+                                allOverlay[i].point.lat == $('#newNumberY').val()){
+                                map.removeOverlay(allOverlay[i]);
+                                var newm =new BMap.Marker(
+                                    new BMap.Point(
+                                        $('#newNumberX').val(),
+                                        $('#newNumberY').val()
+                                    ),
+                                    {
+                                        icon : new BMap.Icon(
+                                            "../img/icon.png",
+                                            new BMap.Size(11, 16), {
+                                                imageOffset : new BMap.Size(-5, -6),
+                                                anchor : new BMap.Size(6, 14)
+                                            }
+                                        )
+                                    }
+                                );
+                                //添加标记
+                                map.addOverlay(newm);
+                                //标记拖动
+                                newm.enableDragging();
+                                newm.addEventListener("dragend", function(e){
+                                    $('#newNumberX').val(e.point.lng);
+                                    $('#newNumberY').val(e.point.lat);
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+            focpoint = false;
+        }
+    }
+    //开放添加标点
+    function openTpoint() {
+        focpoint = true;
+    }
+    //保存标点
+    function msave(v) {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].point.lng == $('#newNumberX' + v + '').val() &&
+                    allOverlay[i].point.lat == $('#newNumberY' + v + '').val()){
+                    if ("" == $('#bdbh' + v + '').val()){
+                        alert("标点编号不能为空");
+                        return;
+                    }
+                    if ("" == $('#bdmc' + v + '').val()){
+                        alert("标点名称不能为空");
+                        return;
+                    }
+                    map.removeOverlay(allOverlay[i]);
+                    var im = $('#newNumberS' + v + '').children('option:selected').text();
+                    var tpe = "";
+                    if ("设备点" == im) {
+                        im = "../img/icon2.png";
+                        tpe = "1";
+                    } else {
+                        im = "../img/icon.png";
+                        tpe = "0";
+                    }
+                    var newm = new BMap.Marker(
+                        new BMap.Point(
+                            $('#newNumberX' + v + '').val(),
+                            $('#newNumberY' + v + '').val()
+                        ),
+                        {
+                            icon : new BMap.Icon(
+                                im,
+                                new BMap.Size(11, 16), {
+                                    imageOffset : new BMap.Size(-5, -6),
+                                    anchor : new BMap.Size(6, 14)
+                                }
+                            )
+                        }
+                    );
+                    //添加标记
+                    map.addOverlay(newm);
+                    $.ajax({
+                        cache : true,
+                        async : false,
+                        type : "POST",
+                        url : ctx + "rescue/calculation/addSave",
+                        data : {
+                            "name": $('#bdmc' + v + '').val(),
+                            "numId": $('#bdbh' + v + '').val(),
+                            "pointX": $('#newNumberX' + v + '').val(),
+                            "pointY": $('#newNumberY' + v + '').val(),
+                            "type": tpe
+                        },
+                        error : function(request) {
+                        },
+                        success : function(data) {
+                            if (data.code != 0){
+                                alert(data.msg);
+                                mdel(v);
+                                return;
+                            }
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        }
+        $('#al' + v + '').remove();
+    }
+    //删除标点
+    function mdel(v) {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].point.lng == $('#newNumberX' + v + '').val() &&
+                    allOverlay[i].point.lat == $('#newNumberY' + v + '').val()){
+                    map.removeOverlay(allOverlay[i]);
+                }
+            }
+        }
+        $('#al' + v + '').remove();
+    }
+    //保存标点
+    function msave2() {
+        var allOverlay = map.getOverlays();
+        if (""==$('#newNumberX').val() || ""==$('#newNumberY').val()){
+            alert("标点坐标不能为空");
+            return;
+        }
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].point.lng == $('#newNumberX').val() &&
+                    allOverlay[i].point.lat == $('#newNumberY').val()){
+                    var im = $('#newNumberS').children('option:selected').text();
+                    if ("设备点" == im) {
+                        if ("q" == $('#bdmcl').val()){
+                            alert("请选择设备标点");
+                            return;
+                        }
+                    } else {
+                        if ("" == $('#bdbh').val()){
+                            alert("标点编号不能为空");
+                            return;
+                        }
+                        if ("" == $('#bdmc').val()){
+                            alert("标点名称不能为空");
+                            return;
+                        }
+                    }
+                    map.removeOverlay(allOverlay[i]);
+                    var tpe = "";
+                    if ("设备点" == im) {
+                        im = "../img/icon2.png";
+                        tpe = "1";
+                        $('#bdmc').val($('#bdmcl').val());
+                        $('#bdbh').val($('#bdmcl').text());
+                    } else {
+                        im = "../img/icon.png";
+                        tpe = "0";
+                    }
+                    var newm = new BMap.Marker(
+                        new BMap.Point(
+                            $('#newNumberX').val(),
+                            $('#newNumberY').val()
+                        ),
+                        {
+                            icon : new BMap.Icon(
+                                im,
+                                new BMap.Size(11, 16), {
+                                    imageOffset : new BMap.Size(-5, -6),
+                                    anchor : new BMap.Size(6, 14)
+                                }
+                            )
+                        }
+                    );
+                    //添加标记
+                    map.addOverlay(newm);
+                    $.ajax({
+                        cache : true,
+                        async : false,
+                        type : "POST",
+                        url : ctx + "rescue/calculation/addSave",
+                        data : {
+                            "name": $('#bdmc').val(),
+                            "numId": $('#bdbh').val(),
+                            "pointX": $('#newNumberX').val(),
+                            "pointY": $('#newNumberY').val(),
+                            "type": tpe
+                        },
+                        error : function(request) {
+                        },
+                        success : function(data) {
+                            if (data.code != 0){
+                                alert(data.msg);
+                                mdel(v);
+                                return;
+                            }
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        }
+        $('#openbd').css("display","none");
+    }
+    //删除标点
+    function mdel2() {
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length ; i++){
+            if(typeof(allOverlay[i].z.uj) != "undefined") {
+                if(allOverlay[i].point.lng == $('#newNumberX').val() &&
+                    allOverlay[i].point.lat == $('#newNumberY').val()){
+                    map.removeOverlay(allOverlay[i]);
+                }
+            }
+        }
+        $('#openbd').css("display","none");
+    }
+    //添加通道
+    function openTpolyline() {
+        var markerArr = JSON.parse($("input[name='markerArr']").val());
+        var st = "";
+        for (var i = 0;i < markerArr.length;i++) {
+            st += "<option value=" + markerArr[i].point + ">" + markerArr[i].content + "</option>";
+        }
+        $('#opentd').append(
+            "<div class=\"col-sm-12\" style=\"padding: 0px\" id='bl" + newNumber + "'>" +
+            "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+            "<select class=\"form-control\" id='newNumberOP" + newNumber + "' onchange='xbg(" + newNumber + ")' oplng='' oplat=''>" +
+            "<option th:value=\"1\">请选择</option>" +
+            st +
+            "</select>" +
+            "</div>" +
+            "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+            "<select class=\"form-control\" id='newNumberED" + newNumber + "' onchange='xbg(" + newNumber + ")' edlng='' edlat=''>" +
+            "<option th:value=\"1\">请选择</option>" +
+            st +
+            "</select>" +
+            "</div>" +
+            "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+            "<span>通道长度</span><input class=\"form-control\" type=\"text\" id='mytdl" + newNumber + "' />" +
+            "</div>" +
+            "<div class=\"col-sm-12\" style=\"padding: 0px\">" +
+            "<a class=\"btn btn-primary btn-rounded btn-sm ocpoint\" onclick=\"xmdel(" + newNumber + ")\">删除</a>" +
+            "<a class=\"btn btn-primary btn-rounded btn-sm ocpoint\" onclick=\"xsave(" + newNumber + ")\">保存</a>" +
+            "</div>" +
+            "</div>");
+        newNumber += 1;
+    }
+    function openTpolyline2() {
+        $("#opentd").css("display","");
+    }
+    //更改通道
+    function xbg(v) {
+        $("body").mLoading("show");
+        if ($("#newNumberOP" + v + "").attr('oplng') != "") {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].ia[0].lng == $("#newNumberOP" + v + "").attr('oplng') &&
+                        allOverlay[i].ia[0].lat == $("#newNumberOP" + v + "").attr('oplat') &&
+                        allOverlay[i].ia[1].lng == $("#newNumberED" + v + "").attr('edlng') &&
+                        allOverlay[i].ia[1].lat == $("#newNumberED" + v + "").attr('edlat')
+                    ) {
+                        map.removeOverlay(allOverlay[i]);
+                    }
+                    if(allOverlay[i].ia[1].lng == $("#newNumberOP" + v + "").attr('oplng') &&
+                        allOverlay[i].ia[1].lat == $("#newNumberOP" + v + "").attr('oplat') &&
+                        allOverlay[i].ia[0].lng == $("#newNumberED" + v + "").attr('edlng') &&
+                        allOverlay[i].ia[0].lat == $("#newNumberED" + v + "").attr('edlat')
+                    ) {
+                        map.removeOverlay(allOverlay[i]);
+                    }
+                }
+            }
+            $("#newNumberOP" + v + "").attr('oplng', "");
+            $("#newNumberOP" + v + "").attr('oplat', "");
+            $("#newNumberED" + v + "").attr('edlng', "");
+            $("#newNumberED" + v + "").attr('edlat', "");
+        }
+        var op = $('#newNumberOP' + v + '').val();
+        var ed = $('#newNumberED' + v + '').val();
+        if ("请选择" != op && "请选择" != ed && op != ed) {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if (allOverlay[i].point.lng == op.split("|")[0] && allOverlay[i].point.lat == op.split("|")[1]) {
+                        op = allOverlay[i];
+                        break;
+                    }
+                }
+            }
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.uj) != "undefined") {
+                    if (allOverlay[i].point.lng == ed.split("|")[0] && allOverlay[i].point.lat == ed.split("|")[1]) {
+                        ed = allOverlay[i];
+                        break;
+                    }
+                }
+            }
+            var points = [];
+            points.push(new BMap.Point(op.point.lng, op.point.lat));
+            points.push(new BMap.Point(ed.point.lng, ed.point.lat));
+            var line = new BMap.Polyline(points, {
+                strokeStyle : "solid",
+                strokeWeight : 4,
+                strokeColor : "#0f0",
+                strokeOpacity : 0.6
+            });
+            map.addOverlay(line);
+            $("#newNumberOP" + v + "").attr('oplng', op.point.lng);
+            $("#newNumberOP" + v + "").attr('oplat', op.point.lat);
+            $("#newNumberED" + v + "").attr('edlng', ed.point.lng);
+            $("#newNumberED" + v + "").attr('edlat', ed.point.lat);
+        }
+        $("body").mLoading("hide");
+    }
+    //保存通道
+    function xsave(v) {
+        var lll = $('#mytdl' + v + '').val();
+        var reg = /^[-\+]?\d+(\.\d+)?$/;
+        if (!reg.test(lll)) {
+            alert("请输入正确的距离");
+            return;
+        }
+        var oop = $('#newNumberOP' + v + '').val();
+        var eed = $('#newNumberED' + v + '').val();
+        if (oop == "请选择" || eed == "请选择") {
+            alert("请选择起止点");
+            return;
+        }
+        $.ajax({
+            cache : true,
+            async : false,
+            type : "POST",
+            url : ctx + "rescue/calculation/addSavePolyline",
+            data : {
+                "beginPoint": oop,
+                "endPoint": eed,
+                "distance": lll
+            },
+            error : function(request) {
+            },
+            success : function(data) {
+                if (data.code != 0){
+                    alert(data.msg);
+                    return;
+                }
+                $('#bl' + v + '').remove();
+                window.location.reload();
+            }
+        });
+    }
+    //删除通道
+    function xmdel(v) {
+        if ($("#newNumberOP" + v + "").attr('oplng') != "") {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length ; i++){
+                if(typeof(allOverlay[i].z.strokeColor) != "undefined") {
+                    if(allOverlay[i].ia[0].lng == $("#newNumberOP" + v + "").attr('oplng') &&
+                        allOverlay[i].ia[0].lat == $("#newNumberOP" + v + "").attr('oplat') &&
+                        allOverlay[i].ia[1].lng == $("#newNumberED" + v + "").attr('edlng') &&
+                        allOverlay[i].ia[1].lat == $("#newNumberED" + v + "").attr('edlat')
+                    ) {
+                        map.removeOverlay(allOverlay[i]);
+                    }
+                    if(allOverlay[i].ia[1].lng == $("#newNumberOP" + v + "").attr('oplng') &&
+                        allOverlay[i].ia[1].lat == $("#newNumberOP" + v + "").attr('oplat') &&
+                        allOverlay[i].ia[0].lng == $("#newNumberED" + v + "").attr('edlng') &&
+                        allOverlay[i].ia[0].lat == $("#newNumberED" + v + "").attr('edlat')
+                    ) {
+                        map.removeOverlay(allOverlay[i]);
+                    }
+                }
+            }
+            $("#newNumberOP" + v + "").attr('oplng', "");
+            $("#newNumberOP" + v + "").attr('oplat', "");
+            $("#newNumberED" + v + "").attr('edlng', "");
+            $("#newNumberED" + v + "").attr('edlat', "");
+        }
+        $('#bl' + v + '').remove();
+    }
+    //保存通道
+    function xsave2(v) {
+        var lll = $('#mytdl').val()/coefficient;
+        var tdname = $('#tdname').val();
+        var reg = /^[-\+]?\d+(\.\d+)?$/;
+        if (!reg.test(lll)) {
+            alert("请输入正确的距离");
+            return;
+        }
+        if (""==$('#tdname').val()) {
+            alert("请输入正确的通道名称");
+            return;
+        }
+        var oop = $('#bdid2op').val();
+        var eed = $('#bdid2ed').val();
+        if (oop == "" || eed == "") {
+            alert("请选择起止点");
+            return;
+        }
+        $.ajax({
+            cache : true,
+            async : false,
+            type : "POST",
+            url : ctx + "rescue/calculation/addSavePolyline",
+            data : {
+                "beginPoint": oop,
+                "endPoint": eed,
+                "distance": lll,
+                "kname": tdname
+            },
+            error : function(request) {
+            },
+            success : function(data) {
+                if (data.code != 0){
+                    alert(data.msg);
+                    return;
+                }
+                xmdel2();
+                window.location.reload();
+            }
+        });
+    }
+    //删除通道
+    function xmdel2() {
+        $("#tdname").val("");
+        $("#newNumberOP").val("");
+        $("#newNumberED").val("");
+        $("#mytdl").val("");
+        $("#opentd").css("display","none");
+    }
+    $("#newNumberOP").focus(function(){
+        dtdbd1on = true;
+        mytc = false;
+    });
+    $("#newNumberED").focus(function(){
+        dtdbd2on = true;
+        mytc = false;
+    });
+    $("#newNumberOP").blur(function(){
+        dtdbd1on = false;
+        mytc = true;
+    });
+    $("#newNumberED").blur(function(){
+        dtdbd2on = false;
+        mytc = true;
+    });
+    $("#qnum").focus(function(){
+        qnumon = true;
+        mytc = false;
+    });
+    $("#bdnum").focus(function(){
+        bdnumon = true;
+        mytc = false;
+    });
+    $("#qnum").blur(function(){
+        qnumon = false;
+        mytc = true;
+    });
+    $("#bdnum").blur(function(){
+        bdnumon = false;
+        mytc = true;
+    });
+    $('#jjss').on('DOMNodeInserted',function(){
+        if ("" == document.getElementById('jjss').innerHTML) {
+            $('#updatebb').css("display","none");
+        } else {
+            $('#updatebb').css("display","");
+        }
+    });
+    //计算路径播报
+    function updatebb() {
+        $.ajax({
+            cache : false,
+            async : true,
+            type : "POST",
+            url : ctx + "rescue/calculation/updatebb",
+            data : {
+                "sid": "",
+                "planId": ""
+            },
+            beforeSend: function() {
+                //$("body").mLoading("show");
+            },
+            complete: function () {
+                //$("body").mLoading("hide");
+            },
+            error : function(request) {
+            },
+            success : function(data) {
+                if (data.code != 0){
+                    alert(data.msg);
+                    return;
+                }
+            }
+        });
+    }
+    function pointhk() {
+        if ("虚拟点"!=$("#newNumberS").val()) {
+            $('#bdbh').css("display","none");
+            $('#bdbhbh').css("display","none");
+            $('#bdmc').css("display","none");
+            $('#bdbhmc').css("display","none");
+            $('#bdmcl').css("display","");
+        } else {
+            $('#bdbh').css("display","");
+            $('#bdbhbh').css("display","");
+            $('#bdmc').css("display","");
+            $('#bdbhmc').css("display","");
+            $('#bdmcl').css("display","none");
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-playlistMusic-add">
+			<div class="form-group">
+				<input name="playlistId" class="form-control" type="hidden" readonly="true" th:value="${playlist.id}">
+				<label class="col-sm-3 control-label">播放列表名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" class="form-control" type="text" readonly="true" th:value="${playlist.name}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">音乐名称：</label>
+				<div class="col-sm-8">
+					<select id="music" class="form-control m-b" name="music">
+						<option th:each="music : ${lMusic}" th:text="${music.name}" th:value="${music.id}"></option>
+					</select>
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+	<script th:src="@{/ajax/libs/select/select2.js}"></script>
+    <script type="text/javascript">
+		var prefix = ctx + "basis/playlistMusic";
+		$("#form-playlistMusic-add").validate({
+            rules:{
+                playlistId:{
+					required:true,
+				},
+                music:{
+                    required:true,
+                },
+			}
+		});
+		function submitHandler() {
+	        if ($.validate.form()) {
+                add();
+	        }
+	    }
+        function add() {
+            var playlistId = $("input[name='playlistId']").val();
+            var musicid = $("select[name='music']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "basis/playlistMusic/add",
+                data : {
+                    "musicId": musicid,
+                    "playlistId": playlistId
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

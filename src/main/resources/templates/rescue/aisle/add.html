@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-aisle-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">：</label>
+				<!--<div class="col-sm-8">
+					<input id="groupId" name="groupId" class="form-control" type="text">
+				</div>-->
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">通道名称：</label>
+				<div class="col-sm-8">
+					<input id="kname" name="kname" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">状态：</label>
+				<div class="col-sm-8">
+					<!--<input id="status" name="status" class="form-control" type="text">-->
+					<select id="status" name="status" class="form-control">
+						<option value="0">可用</option>
+						<option value="1">不可用</option>
+						<option value="2">占用</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">起始点：</label>
+				<div class="col-sm-8">
+					<!--<input id="beginPoint" name="beginPoint" class="form-control" type="text">-->
+					<select id="beginPoint" class="form-control m-b" name="beginPoint">
+						<option th:each="point : ${pointList}" th:text="${point.name}" th:value="${point.id}"></option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">目标点：</label>
+				<div class="col-sm-8">
+					<!--<input id="endPoint" name="endPoint" class="form-control" type="text">-->
+					<select id="endPoint" class="form-control m-b" name="endPoint">
+						<!--<option th:each="point : ${pointList}" th:text="${point.name}" th:value="${point.id}"></option>-->
+					</select>
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">起始点横坐标：</label>
+				<div class="col-sm-8">
+					<input id="beginPointX" name="beginPointX" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">起始点纵坐标：</label>
+				<div class="col-sm-8">
+					<input id="beginPointY" name="beginPointY" class="form-control" type="text">
+				</div>
+			</div>-->
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">目标点横坐标：</label>
+				<div class="col-sm-8">
+					<input id="endPointX" name="endPointX" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">目标点纵坐标：</label>
+				<div class="col-sm-8">
+					<input id="endPointY" name="endPointY" class="form-control" type="text">
+				</div>
+			</div>-->
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">前进方向：</label>
+				<div class="col-sm-8">
+					<input id="direction" name="direction" class="form-control" type="text">
+				</div>
+			</div>-->
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">前进距离(米)：</label>
+				<div class="col-sm-8">
+					<input id="distance" name="distance" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">区域id：</label>
+				<div class="col-sm-8">
+					<!--<input id="regionId" name="regionId" class="form-control" type="text">-->
+					<select id="regionId" class="form-control m-b" name="regionId">
+						<option th:each="region : ${regionList}" th:text="${region.name}" th:value="${region.id}"></option>
+					</select>
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "rescue/aisle";
+		$(function () {
+			$("#beginPoint").on('change',function(){
+				var pointId=$(this).children('option:selected').val();
+				$.ajax({
+					cache : true,
+					type : "POST",
+					url : prefix + "/selectPoint",
+					data : {"pointId":pointId},
+					async : false,
+					error : function(request) {
+						$.modal.alertError("系统错误");
+					},
+					success : function(data) {
+						var option = "";
+						$.each(data["dijsktraList"],function(i,n){//循环，i为下标从0开始，n为集合中对应的第i个对象
+							option += "<option value='"+n.pointId+"'>"+n.pName+"</option>"
+						});
+						$("#endPoint").html(option);//将循环拼接的字符串插入第二个下拉列表
+					}
+				});
+			});
+		});
+
+		$("#form-aisle-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-aisle-add').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

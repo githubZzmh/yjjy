@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-timedBroadcast-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">规则名称：</label>
+				<div class="col-sm-8">
+					<input id="timedBroadcastId" name="timedBroadcastId" class="form-control" th:value="${pkId}"  type="hidden">
+					<input id="pkName" name="pkName" class="form-control" type="text" th:value="${pkName}">
+				</div>
+			</div>
+			<table class="col-sm-12">
+				<tr>
+					<td class="col-sm-6">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">播放列表：</label>
+							<div class="col-sm-8">
+								<select name="playlistId" id="playlistId" style="width: 100%; height: 30px;">
+									<option th:each="playlist : ${listPlaylist}" th:text="${playlist.name}" th:value="${playlist.id}"></option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">时间设定：</label>
+							<div class="col-sm-8">
+								<input id="begintime" name="begintime" class="diy-time col-sm-6" type="text" placeholder="开始时间" style="display: block;padding-left: 10px;">
+								<input id="endtime" name="endtime" class="diy-time col-sm-6" type="text" placeholder="结束时间" style="display: block;padding-left: 10px;">
+							</div>
+						</div>
+					</td>
+					<td class="col-sm-6">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">分组类型：</label>
+							<div class="col-sm-8">
+								<select name="shebeiCat_type" id="shebeiCat_type" style="width: 100%; height: 30px;" onchange="setShebeiCatType()">
+									<option th:each="shebeiCatType : ${listShebeiCatType}" th:text="${shebeiCatType.type}" th:value="${shebeiCatType.type}"></option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">分组名称：</label>
+							<div class="col-sm-8" id="s_div_0">
+								<select name="shebeiCat_name_0" id="shebeiCat_name_0" style="width: 100%; height: 30px;">
+									<option th:each="shebeiCat : ${shebeiCatList_0}"th:text="${shebeiCat.name}" th:value="${shebeiCat.id}"></option>
+								</select>
+							</div>
+							<div class="col-sm-8" id="s_div_1">
+								<select name="shebeiCat_name_1" id="shebeiCat_name_1" style="width: 100%; height: 30px;">
+									<option th:each="shebeiCat : ${shebeiCatList_1}"th:text="${shebeiCat.name}" th:value="${shebeiCat.id}"></option>
+								</select>
+							</div>
+							<div class="col-sm-8" id="s_div_2">
+								<select name="shebeiCat_name_2" id="shebeiCat_name_2" style="width: 100%; height: 30px;">
+									<option th:each="shebeiCat : ${shebeiCatList_2}"th:text="${shebeiCat.name}" th:value="${shebeiCat.id}"></option>
+								</select>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a class="btn btn-success" onclick="leftlistAdd()" shiro:hasPermission="control:broadcast:list">
+							<i class="fa fa-plus"></i> 添加
+						</a>
+					</td>
+					<td>
+						<a class="btn btn-success" onclick="rightlistAdd()" shiro:hasPermission="control:broadcast:list">
+							<i class="fa fa-plus"></i> 添加
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top">
+						<div class="col-sm-12">
+							<table id="bootstrap-table1"></table>
+						</div>
+					</td>
+					<td valign="top">
+						<div class="col-sm-12">
+							<table id="bootstrap-table2"></table>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script th:inline="javascript">
+		var prefix = ctx + "control/broadcast";
+        var removeFlag = [[${@permission.hasPermi('control:broadcast:remove')}]];
+        var shebeiCat_name = $("#shebeiCat_name_0");
+        $(function() {
+            $("#s_div_0").attr("style","display:inline;");
+            $("#s_div_1").attr("style","display:none;");
+            $("#s_div_2").attr("style","display:none;");
+            if ($(".diy-time").length > 0) {
+                layui.use('laydate', function() {
+                    var laydate = layui.laydate;
+                    var times = $(".diy-time");
+                    for (var i = 0; i < times.length; i++) {
+                        var time = times[i];
+                        laydate.render({
+                            type: 'time',
+                            elem: time,
+                            theme: 'molv',
+                            trigger: 'click',
+                            done: function(value, date) {}
+                        });
+                    }
+                });
+            }
+            var options1 = {
+                url: prefix + "/leftlist",
+                removeUrl: prefix + "/remove",
+                queryParams: queryParamsLeft,
+                modalName: "播放列表",
+                search: false,
+                showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+                    checkbox: true
+                }, {
+                    field : 'name',
+                    title : '播放列表名称',
+                    sortable: true
+                }, {
+                    field : 'begintime',
+                    title : '开始时间',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if(value==null){
+                            return value;
+                        }else{
+                            return value.substring(11,value.length);
+                        }
+                    }
+                }, {
+                    field : 'endtime',
+                    title : '结束时间',
+                    sortable: true,
+                    formatter: function(value, row, index) {
+                        if(value==null){
+                            return value;
+                        }else{
+                            return value.substring(11,value.length);
+                        }
+                    }
+                },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        formatter: function(value, row, index) {
+                            var actions = [];
+                            actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="leftlistRemove(\'' + row.id + '\' , \'' + row.begintime + '\' , \'' + row.endtime + '\')"><i class="fa fa-remove"></i>删除</a>');
+                            return actions.join('');
+                        }
+                    }]
+            };
+            var options2 = {
+                url: prefix + "/rightlist",
+                removeUrl: prefix + "/remove",
+                queryParams: queryParamsRight,
+                modalName: "设备分组",
+                search: false,
+                showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'name',
+                        title : '分类名称',
+                        sortable: true
+                    }, {
+                        field : 'playType',
+                        title : '播放类型',
+                        sortable: true
+                    },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        formatter: function(value, row, index) {
+                            var actions = [];
+                            actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="rightlistRemove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                            return actions.join('');
+                        }
+                    }]
+            };
+            init1(options1);
+            init2(options2);
+        });
+        function setShebeiCatType(){
+            var shebeiCat_type = $("#shebeiCat_type").val();
+            if(shebeiCat_type=="广播小组"){
+                $("#s_div_0").attr("style","display:inline;");
+                $("#s_div_1").attr("style","display:none;");
+                $("#s_div_2").attr("style","display:none;");
+                shebeiCat_name = $("#shebeiCat_name_0");
+            }else if(shebeiCat_type=="音乐小组"){
+                $("#s_div_0").attr("style","display:none;");
+                $("#s_div_1").attr("style","display:inline;");
+                $("#s_div_2").attr("style","display:none;");
+                shebeiCat_name = $("#shebeiCat_name_1");
+            }else{
+                $("#s_div_0").attr("style","display:none;");
+                $("#s_div_1").attr("style","display:none;");
+                $("#s_div_2").attr("style","display:inline;");
+                shebeiCat_name = $("#shebeiCat_name_2");
+            }
+        }
+        function queryParamsLeft(params) {
+            var timedBroadcastId = $("#timedBroadcastId").val();
+            return {
+                id:       timedBroadcastId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+        function queryParamsRight(params) {
+            var timedBroadcastId = $("#timedBroadcastId").val();
+            return {
+                id:       timedBroadcastId,
+                pageSize:       params.limit,
+                pageNum:        params.offset / params.limit + 1,
+                searchValue:    params.search,
+                orderByColumn:  params.sort,
+                isAsc:          params.order
+            };
+        }
+        function init1(options){
+            $.table._option = options;
+            $.table._params = $.common.isEmpty(options.queryParams) ? $.table.queryParams : options.queryParams;
+            _sortOrder = $.common.isEmpty(options.sortOrder) ? "asc" : options.sortOrder;
+            _sortName = $.common.isEmpty(options.sortName) ? "" : options.sortName;
+            _striped = $.common.isEmpty(options.striped) ? false : options.striped;
+            $('#bootstrap-table1').bootstrapTable({
+                url: options.url,                                   // 请求后台的URL（*）
+                contentType: "application/x-www-form-urlencoded",   // 编码类型
+                method: 'post',                                     // 请求方式（*）
+                cache: false,                                       // 是否使用缓存
+                striped: _striped,                                  // 是否显示行间隔色
+                sortable: true,                                     // 是否启用排序
+                sortStable: true,                                   // 设置为 true 将获得稳定的排序
+                sortName: _sortName,                                // 排序列名称
+                sortOrder: _sortOrder,                              // 排序方式  asc 或者 desc
+                pagination: $.common.visible(options.pagination),   // 是否显示分页（*）
+                pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+                pageSize: 10,                                       // 每页的记录行数（*）
+                pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+                iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+                toolbar: '#toolbar',                                // 指定工作栏
+                sidePagination: "server",                           // 启用服务端分页
+                search: $.common.visible(options.search),           // 是否显示搜索框功能
+                showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+                showRefresh: $.common.visible(options.showRefresh), // 是否显示刷新按钮
+                showColumns: $.common.visible(options.showColumns), // 是否显示隐藏某列下拉框
+                showToggle: $.common.visible(options.showToggle),   // 是否显示详细视图和列表视图的切换按钮
+                showExport: $.common.visible(options.showExport),   // 是否支持导出文件
+                queryParams: $.table._params,                       // 传递参数（*）
+                columns: options.columns,                           // 显示列信息（*）
+                responseHandler: $.table.responseHandler            // 回调函数
+            });
+        }
+        function init2(options){
+            $.table._option = options;
+            $.table._params = $.common.isEmpty(options.queryParams) ? $.table.queryParams : options.queryParams;
+            _sortOrder = $.common.isEmpty(options.sortOrder) ? "asc" : options.sortOrder;
+            _sortName = $.common.isEmpty(options.sortName) ? "" : options.sortName;
+            _striped = $.common.isEmpty(options.striped) ? false : options.striped;
+            $('#bootstrap-table2').bootstrapTable({
+                url: options.url,                                   // 请求后台的URL（*）
+                contentType: "application/x-www-form-urlencoded",   // 编码类型
+                method: 'post',                                     // 请求方式（*）
+                cache: false,                                       // 是否使用缓存
+                striped: _striped,                                  // 是否显示行间隔色
+                sortable: true,                                     // 是否启用排序
+                sortStable: true,                                   // 设置为 true 将获得稳定的排序
+                sortName: _sortName,                                // 排序列名称
+                sortOrder: _sortOrder,                              // 排序方式  asc 或者 desc
+                pagination: $.common.visible(options.pagination),   // 是否显示分页（*）
+                pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+                pageSize: 10,                                       // 每页的记录行数（*）
+                pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+                iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+                toolbar: '#toolbar',                                // 指定工作栏
+                sidePagination: "server",                           // 启用服务端分页
+                search: $.common.visible(options.search),           // 是否显示搜索框功能
+                showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+                showRefresh: $.common.visible(options.showRefresh), // 是否显示刷新按钮
+                showColumns: $.common.visible(options.showColumns), // 是否显示隐藏某列下拉框
+                showToggle: $.common.visible(options.showToggle),   // 是否显示详细视图和列表视图的切换按钮
+                showExport: $.common.visible(options.showExport),   // 是否支持导出文件
+                queryParams: $.table._params,                       // 传递参数（*）
+                columns: options.columns,                           // 显示列信息（*）
+                responseHandler: $.table.responseHandler            // 回调函数
+            });
+        }
+        function leftlistAdd() {
+            var broadcastId = $("#timedBroadcastId").val();
+            var playlistId = $("#playlistId").val();
+            var begintime = $("#begintime").val();
+            var endtime = $("#endtime").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : prefix + "/leftlistAdd",
+                data : {
+                    "broadcastId": broadcastId,
+                    "playlistId": playlistId,
+                    "begintime": begintime,
+                    "endtime": endtime
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $("#bootstrap-table1").bootstrapTable('refresh', {
+                        url: prefix + "/leftlist",
+                        silent: true
+                    });
+                }
+            });
+        }
+        function rightlistAdd() {
+            var broadcastId = $("#timedBroadcastId").val();
+            var shebeiCatId = shebeiCat_name.val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : prefix + "/rightlistAdd",
+                data : {
+                    "broadcastId": broadcastId,
+                    "shebeiCatId": shebeiCatId
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $("#bootstrap-table2").bootstrapTable('refresh', {
+                        url: prefix + "/rightlist",
+                        silent: true
+                    });
+                }
+            });
+        }
+        function leftlistRemove(id, begintime, endtime) {
+            var broadcastId = $("#timedBroadcastId").val();
+            $.modal.confirm("确定删除该条播放列表信息吗？", function() {
+                var url = $.common.isEmpty(id) ? (prefix + "/leftlistRemove") : (prefix + "/leftlistRemove").replace("{id}", id);
+                $.ajax({
+                    cache : true,
+                    type : "POST",
+                    url : url,
+                    data : {
+                        "broadcastId": broadcastId,
+                        "playlistId": id,
+                        "begintime": begintime.substring(11, begintime.length),
+                        "endtime": endtime.substring(11, endtime.length)
+                    },
+                    async : false,
+                    error : function(request) {
+                        $.modal.alertError("系统错误");
+                    },
+                    success : function(data) {
+                        $("#bootstrap-table1").bootstrapTable('refresh', {
+                            url: prefix + "/leftlist",
+                            silent: true
+                        });
+                    }
+                });
+            });
+        }
+        function rightlistRemove(id) {
+            var broadcastId = $("#timedBroadcastId").val();
+            $.modal.confirm("确定删除该条设备分组信息吗？", function() {
+                var url = $.common.isEmpty(id) ? (prefix + "/rightlistRemove") : (prefix + "/rightlistRemove").replace("{id}", id);
+                $.ajax({
+                    cache : true,
+                    type : "POST",
+                    url : url,
+                    data : {
+                        "broadcastId": broadcastId,
+                        "shebeiCatId": id
+                    },
+                    async : false,
+                    error : function(request) {
+                        $.modal.alertError("系统错误");
+                    },
+                    success : function(data) {
+                        $("#bootstrap-table2").bootstrapTable('refresh', {
+                            url: prefix + "/rightlist",
+                            silent: true
+                        });
+                    }
+                });
+            });
+        }
+		$("#form-timedBroadcast-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		function submitHandler() {
+	        if ($.validate.form()) {
+                add();
+	        }
+	    }
+        function add() {
+            var id = $("input[name='timedBroadcastId']").val();
+            var name = $("input[name='pkName']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "control/broadcast/add",
+                data : {
+                    "id": id,
+                    "name": name,
+                    "creatId": "",
+                    "creatTime": ""
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

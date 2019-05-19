@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="$.operate.muiscAll()" shiro:hasPermission="music:audio:list">
+					 全区播放
+				</a>
+				<a class="btn btn-success" onclick="$.operate.muiscStop()" shiro:hasPermission="music:audio:list">
+					 全区停止
+				</a>
+			</div>
+
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var prefix = ctx + "music/audio";
+		var datas_synchronization = [[${@dict.getType('synchronization_')}]];
+		var datas_status = [[${@dict.getType('status_')}]];
+		var status_type = [[${@dict.getType('status_type')}]];
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                startUrl: prefix + "/all",
+				stopUrl: prefix + "/stop",
+                modalName: "音乐",
+				search: false,
+		        showExport: true,
+                uniqueId: "id", //每一行的唯一标识，一般为主键列
+                columns: [
+                		/*{
+		            checkbox: true
+		        },*/
+					{
+						field : 'numId',
+						title : '设备编号'
+					},
+					{
+						field : 'name',
+						title : '设备名称'
+					},
+					{
+						field : 'synchronization',
+						title : '同步标识',
+						align: 'center',
+						formatter: function(value, row, index) {
+							return $.table.selectDictLabel(datas_synchronization, value);
+						}
+					},
+					{
+						field : 'status',
+						title : '设备状态',
+						align: 'center',
+						formatter: function(value, row, index) {
+							return $.table.selectDictLabel(status_type, value);
+						}
+					},
+					{
+						field : 'ip',
+						title : '设备ip'
+					},
+					{
+						field : 'gateway',
+						title : '网关'
+					},
+					{
+						field : 'mask',
+						title : '子网掩码'
+					},
+					{
+						field : 'mac',
+						title : '媒体访问控制地址'
+					},
+					{
+						field : 'port',
+						title : '端口号'
+					},
+					{
+						field : 'pointX',
+						title : '设备横坐标'
+					},
+					{
+						field : 'pointY',
+						title : '设备纵坐标'
+					},
+					{
+						field : 'volume',
+						title : '音量'
+					},
+					{
+						field : 'creatuserid',
+						title : '创建人'
+					},
+					{
+						field : 'createtime',
+						title : '创建时间'
+					}]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

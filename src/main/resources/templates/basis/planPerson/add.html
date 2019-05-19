@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-planPerson-add">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">预案名称：</label>
+				<div class="col-sm-8">
+					<input  class="form-control" type="text" th:value="${planName}">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">分组名称：</label>
+				<div class="col-sm-8">
+					<input id="groupId" name="groupId" class="form-control" type="hidden" th:value="${groupId}">
+					<input class="form-control" type="text" th:value="${groupName}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">是否领导：</label>
+				<div class="col-sm-8">
+					<!--<input id="userId" name="userId" class="form-control" type="text">-->
+					<select id="isLeader" name="isLeader" class="form-control">
+						<option value="1">否</option>
+						<option value="0">是</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">人员名称：</label>
+				<div class="col-sm-8">
+					<!--<input id="name" name="name" class="form-control" type="text">-->
+					<select name="userIds" id="userIds" class="form-control select2-hidden-accessible" multiple>
+						<option th:each="user:${userList}" th:value="${user.userId}" th:text="${user.userName}"></option>
+					</select>
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">电话：</label>
+				<div class="col-sm-8">
+					<input id="mobile" name="mobile" class="form-control" type="text">
+				</div>
+			</div>-->
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+	<script th:src="@{/ajax/libs/select/select2.js}"></script>
+    <script type="text/javascript">
+		var prefix = ctx + "basis/planPerson";
+		$("#form-planPerson-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-planPerson-add').serialize());
+	        }
+	    }
+
+
+	</script>
+</body>
+</html>

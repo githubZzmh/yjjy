@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="js/swiper/swiper.min.css"/>
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<div id="pageVM">
+			<div id="mapTitle">
+				<div class="map-title-time" v-text="dateStr"></div>
+				<h1 class="map-title-h">应急救援监管大数据平台</h1>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-9">
+						<div class="cntBorder">
+							<div class="table-title borderBottom">设备及故障数据统计</div>
+							<div class="row">
+								<div class="col-8">
+									<div id="timeChart" style="height: 260px;"></div>
+								</div>
+								<div class="col-4">
+									<div class="borderBottom echartInfo"><img src="img/total.png"/>设备总数 <span class="font-tt" v-text="ed.echartsDevice.device_all"></span></div>
+									<div class="borderBottom echartInfo big">在线设备数：<span class="font-tt" style="font-size: 20px;" v-text="ed.echartsDevice.device_online"></span></div>
+									<div class="echartInfo big">
+										<div>设备在线率</div>
+										<div class="progress" style="height: 10px;border-radius: 0;">
+										  <div class="progress-bar bg-success" role="progressbar" :style="{width: ed.echartsDevice.rate_online+'%'}" ></div>
+										</div>
+									</div>
+									<div class="echartInfo big">
+										<div>设备事故率</div>
+										<div class="progress" style="height: 10px;border-radius: 0;">
+										  <div class="progress-bar bg-danger" role="progressbar"  :style="{width: ed.echartsDevice.rate_crash+'%'}"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col">
+								<div class="cntBorder">
+									<div class="table-title borderBottom">设备呼叫排名</div>
+									<div id="deviceCallBar" style="height:285px"></div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="cntBorder">
+									<div class="table-title borderBottom">设备宕机排名</div>
+									<div id="deviceDropBar" style="height:285px"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-3">
+						<div class="cntBorder">
+							<div class="table-title text-center">最新报警信息</div>
+							<div class="table-header">
+								<div class="row">
+									<div class="col col-sm-4 text-left">设备名称</div>
+									<div class="col col-sm-3">设备状态</div>
+									<div class="col col-sm-5">监测时间</div>
+								</div>
+							</div>
+							<swiper id="swiperWrapper" class="awesomeSwiper" ref="awesomeSwiperA" :options="swiperOption">
+							    <swiper-slide v-for="(item,index) in ed.listEchartsList">
+									<div class="table-item">
+										<div class="row">
+											<div class="col col-sm-4 text-left" v-text="item.name"></div>
+											<div class="col col-sm-3" v-text="item.typeName"></div>
+											<div class="col col-sm-5" v-text="item.time"></div>
+										</div>
+									</div>
+								</swiper-slide>
+							</swiper>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/swiper/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/vue-awesome-swiper.js" type="text/javascript" charset="utf-8"></script>
+		<!--<script src="js/data/reqdata.js" type="text/javascript" charset="utf-8"></script>-->
+		<script src="js/index.js" type="text/javascript"></script>
+		
+	</body>
+</html>

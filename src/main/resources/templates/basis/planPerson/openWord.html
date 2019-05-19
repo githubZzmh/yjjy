@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+	<form class="form-horizontal m" id="form-legal-edit">
+		<input name="id"  type="hidden"  th:value="${id}" />
+		<div class="form-group">
+			<label class="col-sm-2 control-label">预案文件：</label>
+			<div class="col-sm-10">
+				<input id="word_"  type="hidden"  th:value="${word}" />
+				<textarea rows="26" cols="20" name="word" readonly="readonly" class="form-control"></textarea>
+			</div>
+		</div>
+		<a class="btn btn-primary btn-rounded btn-sm" onclick="upword()">提交</a>
+		<a class="btn btn-primary btn-rounded btn-sm" onclick="readonly()">编辑</a>
+	</form>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "/basis/planPerson"
+    $("#form-legal-edit").validate({
+        rules:{
+            word:{
+                required:true,
+            },
+        }
+    });
+    function upword() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/upword", $('#form-legal-edit').serialize());
+        }
+    }
+    function readonly() {
+        $("textarea").removeAttr("readOnly");
+    }
+    $(function() {
+        var word = $("#word_").val();
+        $("textarea[name='word']").val(word);
+	});
+</script>
+</body>
+</html>

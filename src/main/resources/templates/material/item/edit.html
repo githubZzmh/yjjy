@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-shebei-edit" th:object="${item}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">设备材料名称：</label>
+				<div class="col-sm-8">
+					<input id="name" name="name" th:field="*{name}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">型号规格：</label>
+				<div class="col-sm-8">
+					<input id="specification" name="specification" th:field="*{specification}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">数量：</label>
+				<div class="col-sm-8">
+					<input id="sum" name="sum" th:field="*{sum}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">性能：</label>
+				<div class="col-sm-8">
+					<input id="performance" name="performance" th:field="*{performance}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">运输条件：</label>
+				<div class="col-sm-8">
+					<input id="transport" name="transport" th:field="*{transport}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">存放地点：</label>
+				<div class="col-sm-8">
+					<input id="storage" name="storage" th:field="*{storage}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">责任人：</label>
+				<div class="col-sm-8">
+					<input id="liable" name="liable" th:field="*{liable}" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">联系方式：</label>
+				<div class="col-sm-8">
+					<input id="contact" name="contact" th:field="*{contact}" class="form-control" type="text">
+				</div>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+        var prefix = ctx + "material/item";
+		$("#form-shebei-edit").validate({
+            rules:{
+                name:{
+                    required:true,
+                },
+                specification:{
+                    required:true,
+                },
+                sum:{
+                    required:true,
+                },
+                performance:{
+                    required:true,
+                },
+                transport:{
+                    required:true,
+                },
+                storage:{
+                    required:true,
+                },
+                liable:{
+                    required:true,
+                },
+                contact:{
+                    required:true,
+                },
+            }
+		});
+		function submitHandler() {
+	        if ($.validate.form()) {
+                edit();
+	        }
+	    }
+        function edit() {
+            var id = $("input[name='id']").val();
+            var name = $("input[name='name']").val();
+            var specification = $("input[name='specification']").val();
+            var sum = $("input[name='sum']").val();
+            var performance = $("input[name='performance']").val();
+            var transport = $("input[name='transport']").val();
+            var storage = $("input[name='storage']").val();
+            var liable = $("input[name='liable']").val();
+            var contact = $("input[name='contact']").val();
+            $.ajax({
+                cache : true,
+                type : "POST",
+                url : ctx + "material/item/edit",
+                data : {
+                    "id": id,
+                    "name": name,
+                    "specification": specification,
+                    "sum": sum,
+                    "performance": performance,
+                    "transport": transport,
+                    "storage": storage,
+                    "liable": liable,
+                    "contact": contact
+                },
+                async : false,
+                error : function(request) {
+                    $.modal.alertError("系统错误");
+                },
+                success : function(data) {
+                    $.operate.saveSuccess(data);
+                }
+            });
+        }
+	</script>
+</body>
+</html>

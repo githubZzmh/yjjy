@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.host.mapper.ShebeiMapper">
+    <resultMap type="Shebei" id="ShebeiResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="numId"    column="num_id"    />
+        <result property="ip"    column="ip"    />
+        <result property="status"    column="status"    />
+        <result property="pointX"    column="point_x"    />
+        <result property="pointY"    column="point_y"    />
+        <result property="regionId"    column="region_id"    />
+        <result property="gateway"    column="gateway"    />
+        <result property="mask"    column="mask"    />
+        <result property="mac"    column="mac"    />
+        <result property="remark"    column="remark"    />
+        <result property="synchronization"    column="synchronization"    />
+        <result property="volume"    column="volume"    />
+        <result property="creatuserid"    column="creatuserid"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="port"    column="port"    />
+        <result property="sipIp"    column="sip_ip"    />
+        <result property="sipPort"    column="sip_port"    />
+        <result property="sipPwd"    column="sip_pwd"    />
+        <result property="sipId"    column="sip_id"    />
+        <result property="updateStatusTime"    column="update_status_time"    />
+    </resultMap>
+	<sql id="selectShebeiVo">
+        select id, name, num_id, ip, status, point_x, point_y, region_id, gateway,
+         mask, mac, remark, synchronization, volume, creatuserid, createtime, port,
+          sip_ip, sip_port, sip_pwd, sip_id,update_status_time from p_shebei
+    </sql>
+    <select id="selectShebeiList" parameterType="Shebei" resultMap="ShebeiResult">
+        <include refid="selectShebeiVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="numId != null  and numId != '' "> and num_id = #{numId}</if>
+             <if test="ip != null  and ip != '' "> and ip = #{ip}</if>
+             <if test="status != null  and status != '' "> and status = #{status}</if>
+             <if test="pointX != null "> and point_x = #{pointX}</if>
+             <if test="pointY != null "> and point_y = #{pointY}</if>
+             <if test="regionId != null  and regionId != '' "> and region_id = #{regionId}</if>
+             <if test="gateway != null  and gateway != '' "> and gateway = #{gateway}</if>
+             <if test="mask != null  and mask != '' "> and mask = #{mask}</if>
+             <if test="mac != null  and mac != '' "> and mac = #{mac}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+             <if test="synchronization != null  and synchronization != '' "> and synchronization = #{synchronization}</if>
+             <if test="volume != null "> and volume = #{volume}</if>
+             <if test="creatuserid != null  and creatuserid != '' "> and creatuserid = #{creatuserid}</if>
+             <if test="createtime != null "> and createtime = #{createtime}</if>
+             <if test="port != null "> and port = #{port}</if>
+        </where>
+        order by num_id
+    </select>
+    <select id="selectShebeiById" parameterType="String" resultMap="ShebeiResult">
+        <include refid="selectShebeiVo"/>
+        where id = #{id}
+    </select>
+    <insert id="insertShebei" parameterType="Shebei">
+        insert into p_shebei
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="numId != null  and numId != ''  ">num_id,</if>
+			<if test="ip != null  and ip != ''  ">ip,</if>
+			<if test="status != null  and status != ''  ">status,</if>
+			<if test="pointX != null  ">point_x,</if>
+			<if test="pointY != null  ">point_y,</if>
+			<if test="regionId != null  and regionId != ''  ">region_id,</if>
+			<if test="gateway != null  and gateway != ''  ">gateway,</if>
+			<if test="mask != null  and mask != ''  ">mask,</if>
+			<if test="mac != null  and mac != ''  ">mac,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+			<if test="synchronization != null  and synchronization != ''  ">synchronization,</if>
+			<if test="volume != null  ">volume,</if>
+			<if test="creatuserid != null  and creatuserid != ''  ">creatuserid,</if>
+			<if test="createtime != null  ">createtime,</if>
+			<if test="port != null  ">port,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="numId != null  and numId != ''  ">#{numId},</if>
+			<if test="ip != null  and ip != ''  ">#{ip},</if>
+			<if test="status != null  and status != ''  ">#{status},</if>
+			<if test="pointX != null  ">#{pointX},</if>
+			<if test="pointY != null  ">#{pointY},</if>
+			<if test="regionId != null  and regionId != ''  ">#{regionId},</if>
+			<if test="gateway != null  and gateway != ''  ">#{gateway},</if>
+			<if test="mask != null  and mask != ''  ">#{mask},</if>
+			<if test="mac != null  and mac != ''  ">#{mac},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+			<if test="synchronization != null  and synchronization != ''  ">#{synchronization},</if>
+			<if test="volume != null  ">#{volume},</if>
+			<if test="creatuserid != null  and creatuserid != ''  ">#{creatuserid},</if>
+			<if test="createtime != null  ">#{createtime},</if>
+			<if test="port != null  ">#{port},</if>
+        </trim>
+    </insert>
+    <update id="updateShebei" parameterType="Shebei">
+        update p_shebei
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="numId != null  and numId != ''  ">num_id = #{numId},</if>
+            <if test="ip != null  and ip != ''  ">ip = #{ip},</if>
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+            <if test="pointX != null  ">point_x = #{pointX},</if>
+            <if test="pointY != null  ">point_y = #{pointY},</if>
+            <if test="regionId != null  and regionId != ''  ">region_id = #{regionId},</if>
+            <if test="gateway != null  and gateway != ''  ">gateway = #{gateway},</if>
+            <if test="mask != null  and mask != ''  ">mask = #{mask},</if>
+            <if test="mac != null  and mac != ''  ">mac = #{mac},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+            <if test="synchronization != null  and synchronization != ''  ">synchronization = #{synchronization},</if>
+            <if test="volume != null  ">volume = #{volume},</if>
+            <if test="creatuserid != null  and creatuserid != ''  ">creatuserid = #{creatuserid},</if>
+            <if test="createtime != null  ">createtime = #{createtime},</if>
+            <if test="port != null  ">port = #{port},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deleteShebeiById" parameterType="String">
+        delete from p_shebei where id = #{id}
+    </delete>
+    <delete id="deleteShebeiByIds" parameterType="String">
+        delete from p_shebei where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <update id="updateShebeiByIds" parameterType="String">
+        update p_shebei set synchronization = 1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectShebeiCountByStatus" parameterType="Map" resultType="Integer">
+        select count(1) from p_shebei
+        where 1=1
+        <if test="status != null and  status != ''">
+          <if test="status == 0">
+            and  status != #{status}
+          </if>
+            <if test="status == 2">
+                and  status = #{status}
+            </if>
+            <if test="status == 3">
+                and  status = #{status}
+            </if>
+        </if>
+    </select>
+
+    <select id="selectShebeiByIds" parameterType="list" resultMap="ShebeiResult">
+        select * from p_shebei
+        where id in
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectShebeiDp" resultMap="ShebeiResult">
+        select name,if(status = '0','离线',if(status = '1','在线',if(status = '2','播放音乐',if(status = '3','在线广播',if(status = '4','通话中',if(status = '5','紧急广播',if(status = '6','应急逃生',''))))))) as typeName,
+        date_format(update_status_time, '%Y-%m-%d %H:%i:%s') as time from p_shebei
+    </select>
+    <select id="selectShebeis" resultMap="ShebeiResult">
+        select ps.* from p_shebei ps
+        left join p_point pp on pp.id = ps.id
+        where pp.id is null
+    </select>
+
+</mapper>

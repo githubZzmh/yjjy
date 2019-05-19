@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>cccccccccccccc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="Keywords" content="doubango, sipML5, VoIP, HTML5, WebRTC, RTCWeb, SIP, IMS, Video chat, VP8, live demo " />
+    <meta name="Description" content="HTML5 SIP client using WebRTC framework" />
+    <meta name="author" content="Doubango Telecom" />
+    <script type="text/javascript" src="./assets/js/jquery.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            //alert("ok");
+        }
+        function yy() {
+            var sid = getParam("shebeiId");
+        }
+        function getParam(paramName) {
+            paramValue = "", isFound = !1;
+            if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+                arrSource = unescape(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+                while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++
+            }
+            return paramValue == "" && (paramValue = null), paramValue
+        }
+        function ttt(p) {
+            $.ajax({
+                type:"GET",
+                url:"http://localhost:9998/yjjy/dp/getMySeat", //访问的链接
+                dataType:"jsonp",  //数据格式设置为jsonp
+                jsonp:"callback",  //Jquery生成验证参数的名称
+                success:function(data){  //成功的回调函数
+                    alert(data);
+                },
+                error: function (e) {
+                    alert("error");
+                }
+            });
+        }
+    </script>
+    <script src="../../../../../../../../Users/haoge/Documents/WeChat Files/zzmh18888360713/Files/yingjiCount/js/index.js"></script>
+</head>
+<body style="cursor:wait">
+    <div id="t">
+        <a onclick='ttt()'>ttt</a>
+    </div>
+</body>
+</html>

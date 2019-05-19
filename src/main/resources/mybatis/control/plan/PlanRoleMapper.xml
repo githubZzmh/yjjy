@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.control.plan.mapper.PlanRoleMapper">
+    <resultMap type="PlanRole" id="PlanRoleResult">
+        <result property="id"    column="id"    />
+        <result property="planId"    column="plan_id"    />
+        <result property="roleId"    column="role_id"    />
+        <result property="name"    column="name"    />
+        <result property="url"    column="url"    />
+        <association property="plan"    column="plan_id" javaType="Plan" resultMap="PlanResult" />
+        <association property="role"    column="role_id" javaType="Role" resultMap="RoleResult" />
+    </resultMap>
+    <resultMap type="Plan" id="PlanResult">
+        <result property="id"    column="pid"    />
+        <result property="name"    column="pname"    />
+    </resultMap>
+    <resultMap type="Role" id="RoleResult">
+        <result property="roleId"        column="rid"          />
+        <result property="roleName"     column="role_name"    />
+        <result property="roleKey"      column="role_key"     />
+        <result property="roleSort"     column="role_sort"    />
+        <result property="dataScope"    column="data_scope"   />
+        <result property="status"       column="status"        />
+        <result property="delFlag"      column="del_flag"      />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"  />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+        <result property="remark"       column="remark"         />
+        <result property="relevanceId"  column="relevance_id"  />
+    </resultMap>
+	<sql id="selectPlanRoleVo">
+        select ppr.id, ppr.plan_id, ppr.role_id, ppr.name, ppr.url,
+        pp.id as pid, pp.name as pname,
+        sr.role_id as rid, sr.role_name, sr.role_key, sr.role_sort, sr.data_scope,
+        sr.status, sr.del_flag, sr.create_by, sr.create_time, sr.update_by, sr.update_time, sr.remark, sr.relevance_id
+        from p_plan_role ppr left join p_plan pp on ppr.plan_id = pp.id
+        left join sys_role sr on ppr.role_id = sr.relevance_id
+    </sql>
+    <select id="selectPlanRoleList" parameterType="PlanListView" resultMap="PlanRoleResult">
+        <include refid="selectPlanRoleVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and ppr.id = #{id}</if>
+             <if test="planId != null  and planId != '' "> and ppr.plan_id = #{planId}</if>
+             <if test="roleId != null  and roleId != '' "> and ppr.role_id = #{roleId}</if>
+             <if test="name != null  and name != '' "> and ppr.name = #{name}</if>
+             <if test="url != null  and url != '' "> and ppr.url = #{url}</if>
+            <if test="roleName != null  and roleName != '' "> and sr.role_name like CONCAT('%',#{roleName},'%')</if>
+            <if test="planName != null  and planName != '' "> and pp.name like CONCAT('%',#{planName},'%')</if>
+         </where>
+    </select>
+    <select id="selectPlanRoleById" parameterType="String" resultMap="PlanRoleResult">
+        <include refid="selectPlanRoleVo"/>
+        where ppr.id = #{id}
+    </select>
+    <select id="selectPlanRoleListByPlanId" parameterType="String" resultMap="PlanRoleResult">
+        <include refid="selectPlanRoleVo"/>
+        where ppr.plan_id = #{planId}
+    </select>
+    <insert id="insertPlanRole" parameterType="PlanRole">
+        insert into p_plan_role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="planId != null  and planId != ''  ">plan_id,</if>
+			<if test="roleId != null  and roleId != ''  ">role_id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="url != null  and url != ''  ">url,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="planId != null  and planId != ''  ">#{planId},</if>
+			<if test="roleId != null  and roleId != ''  ">#{roleId},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="url != null  and url != ''  ">#{url},</if>
+         </trim>
+    </insert>
+    <update id="updatePlanRole" parameterType="PlanRole">
+        update p_plan_role
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="planId != null  and planId != ''  ">plan_id = #{planId},</if>
+            <if test="roleId != null  and roleId != ''  ">role_id = #{roleId},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="url != null  and url != ''  ">url = #{url},</if>
+        </trim>
+        where id = #{id}
+    </update>
+	<delete id="deletePlanRoleById" parameterType="String">
+        delete from p_plan_role where id = #{id}
+    </delete>
+    <delete id="deletePlanRoleByIds" parameterType="String">
+        delete from p_plan_role where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

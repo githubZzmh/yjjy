@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.material.item.mapper.ItemMapper">
+    <resultMap type="Item" id="ItemResult">
+        <result property="id"    column="id"    />
+        <result property="pointId"    column="point_id"    />
+        <result property="weightNum"    column="weight_num"    />
+        <result property="opstatus"    column="opstatus"    />
+        <result property="larr"    column="larr"    />
+        <result property="alarr"    column="alarr"    />
+        <result property="pointName"    column="point_name"    />
+    </resultMap>
+    <select id="selectItemList" parameterType="Item" resultMap="ItemResult">
+        select id,name,specification,sum,performance,transport,storage,liable,contact
+        from p_material_item
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="name != null  and name != '' "> and name = #{name}</if>
+            <if test="specification != null  and specification != '' "> and specification = #{specification}</if>
+            <if test="sum != null  and sum != '' "> and sum = #{sum}</if>
+            <if test="performance != null  and performance != '' "> and performance = #{performance}</if>
+            <if test="transport != null  and transport != '' "> and transport = #{transport}</if>
+            <if test="storage != null  and storage != '' "> and storage = #{storage}</if>
+            <if test="liable != null  and liable != '' "> and liable = #{liable}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+        </where>
+    </select>
+    <insert id="insertItem" parameterType="Item">
+        insert into p_material_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="specification != null and specification != ''">specification,</if>
+            <if test="sum != null and sum != ''">sum,</if>
+            <if test="performance != null and performance != ''">performance,</if>
+            <if test="transport != null and transport != ''">transport,</if>
+            <if test="storage != null and storage != ''">storage,</if>
+            <if test="liable != null and liable != ''">liable,</if>
+            <if test="contact != null and contact != ''">contact,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="specification != null and specification != ''">#{specification},</if>
+            <if test="sum != null and sum != ''">#{sum},</if>
+            <if test="performance != null and performance != ''">#{performance},</if>
+            <if test="transport != null and transport != ''">#{transport},</if>
+            <if test="storage != null and storage != ''">#{storage},</if>
+            <if test="liable != null and liable != ''">#{liable},</if>
+            <if test="contact != null and contact != ''">#{contact},</if>
+        </trim>
+    </insert>
+    <update id="updateItem" parameterType="Item">
+        update p_material_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="specification != null  and specification != ''  ">specification = #{specification},</if>
+            <if test="sum != null  and sum != ''">sum = #{sum},</if>
+            <if test="performance != null  and performance != ''">performance = #{performance},</if>
+            <if test="transport != null  and transport != ''">transport = #{transport},</if>
+            <if test="storage != null  and storage != ''">storage = #{storage},</if>
+            <if test="liable != null  and liable != ''">liable = #{liable},</if>
+            <if test="contact != null  and contact != ''">contact = #{contact},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <delete id="deleteItemById" parameterType="java.util.List">
+        delete from p_material_item where id in
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectItemById" parameterType="String" resultMap="ItemResult">
+        select id,name,specification,sum,performance,transport,storage,liable,contact
+        from p_material_item
+        where id = #{id}
+    </select>
+    <select id="selectItemTransport" resultType="String">
+        select DISTINCT transport
+        from p_material_item
+    </select>
+    <select id="selectItemStorage" resultType="String">
+        select DISTINCT storage
+        from p_material_item
+    </select>
+    <select id="selectItemLiable" resultType="String">
+        select DISTINCT liable
+        from p_material_item
+    </select>
+</mapper>

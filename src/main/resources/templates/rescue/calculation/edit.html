@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+	<form class="form-horizontal m" id="form-legal-edit">
+		<input id="id" name="id"  type="hidden"  th:value="${id}" />
+		<div class="form-group">
+			<!--<label class="col-sm-3 control-label">驳回原因：</label>
+			<div class="col-sm-8">
+				<textarea rows="10" cols="20" name="reject" class="form-control"></textarea>
+			</div>-->
+			<a id="sp" class="btn btn-success" onclick="sp()">开启视频</a>
+			<a id="yy" class="btn btn-info" onclick="yy()">开启语音</a>
+			<a id="yy2" class="btn btn-warning" onclick="yy2()">开启音乐</a>
+		</div>
+	</form>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript">
+    var prefix = ctx + "/rescue/calculation";
+    function submitHandler() {
+        if ($('#sp').text() != "开启视频") {
+            sp();
+		}
+        if ($('#yy').text() != "开启语音") {
+            yy();
+		}
+        if ($('#yy2').text() != "开启音乐") {
+            yy2();
+		}
+        $.modal.close();
+    }
+    //视频
+    function sp() {
+        if ($('#sp').text() == "开启视频") {
+            $('#sp').text("关闭视频");
+            window.parent.spop($('#id').val());
+		} else {
+            $('#sp').text("开启视频");
+            window.parent.sped($('#id').val());
+		}
+    }
+    //语音
+    function yy() {
+        if ($('#yy').text() == "开启语音") {
+            $('#yy').text("关闭语音");
+            window.parent.yyop($('#id').val());
+        } else {
+            $('#yy').text("开启语音");
+            window.parent.btnUnRegister($('#id').val());
+        }
+    }
+    //音乐
+    function yy2() {
+        if ($('#yy2').text() == "开启音乐") {
+            $('#yy2').text("关闭音乐");
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "music/host/start",
+                data : {
+                    "ids": $('#id').val()
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                }
+            });
+        } else {
+            $('#yy2').text("开启音乐");
+            $.ajax({
+                cache : true,
+                async : false,
+                type : "POST",
+                url : ctx + "music/host/stop",
+                data : {
+                    "ids": $('#id').val()
+                },
+                error : function(request) {
+                },
+                success : function(data) {
+                    if (data.code != 0){
+                        alert(data.msg);
+                        return;
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.ctrl.yjjy.project.basis.group.mapper.ShebeiCatShebeiMapper">
+    
+    <resultMap type="ShebeiCatShebei" id="ShebeiCatShebeiResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="catId"    column="cat_id"    />
+        <result property="shebeiId"    column="shebei_id"    />
+        <association property="shebeiCat"    column="cat_id" javaType="ShebeiCat" resultMap="ShebeiCatResult" />
+        <association property="shebei"    column="shebei_id" javaType="Shebei" resultMap="ShebeiResult" />
+    </resultMap>
+    <resultMap type="ShebeiCat" id="ShebeiCatResult">
+        <result property="id"    column="pscid"    />
+        <result property="name"    column="pscname"    />
+        <result property="type"    column="type"    />
+        <result property="ip"    column="ip"    />
+        <result property="playType"    column="play_type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+    <resultMap type="Shebei" id="ShebeiResult">
+        <result property="id"    column="psid"    />
+        <result property="name"    column="psname"    />
+        <result property="numId"    column="num_id"    />
+        <result property="ip"    column="psip"    />
+        <result property="status"    column="status"    />
+        <result property="pointX"    column="point_x"    />
+        <result property="pointY"    column="point_y"    />
+        <result property="regionId"    column="region_id"    />
+        <result property="gateway"    column="gateway"    />
+        <result property="mask"    column="mask"    />
+        <result property="mac"    column="mac"    />
+        <result property="remark"    column="psremark"    />
+        <result property="synchronization"    column="synchronization"    />
+        <result property="volume"    column="volume"    />
+        <result property="creatuserid"    column="creatuserid"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="port"    column="port"    />
+    </resultMap>
+    <resultMap type="EchartsSimple" id="EchartsSimpleResult">
+        <result property="value"    column="num"    />
+        <result property="name"    column="pscname"    />
+    </resultMap>
+	
+	<sql id="selectShebeiCatShebeiVo">
+        select id, name, cat_id, shebei_id from p_shebei_cat_shebei
+    </sql>
+    <select id="selectEchartsSimple" parameterType="EchartsSimple" resultMap="EchartsSimpleResult">
+        select a.pscname, COUNT(pscname) as num
+        from(
+          select pscs.id, pscs.name, pscs.cat_id, pscs.shebei_id,
+          psc.id as pscid, psc.name as pscname, psc.type, psc.ip, psc.play_type, psc.remark,
+          ps.id as psid, ps.name as psname, ps.num_id, ps.ip as psip, ps.status,
+          ps.point_x, ps.point_y, ps.region_id, ps.gateway, ps.mask, ps.mac, ps.remark as psremark,
+          ps.synchronization, ps.volume, ps.creatuserid, ps.createtime, ps.port
+          from p_shebei_cat_shebei pscs
+          left join p_shebei_cat psc on pscs.cat_id = psc.id
+          left join p_shebei ps on ps.id = pscs.shebei_id
+        ) a
+        group by a.pscname
+    </select>
+	
+    <select id="selectShebeiCatShebeiList" parameterType="ShebeiCatShebei" resultMap="ShebeiCatShebeiResult">
+        select pscs.id, pscs.name, pscs.cat_id, pscs.shebei_id,
+        psc.id as pscid, psc.name as pscname, psc.type, psc.ip, psc.play_type, psc.remark,
+        ps.id as psid, ps.name as psname, ps.num_id, ps.ip as psip, ps.status,
+        ps.point_x, ps.point_y, ps.region_id, ps.gateway, ps.mask, ps.mac, ps.remark as psremark,
+        ps.synchronization, ps.volume, ps.creatuserid, ps.createtime, ps.port
+        from p_shebei ps
+        left join p_shebei_cat_shebei pscs on ps.id = pscs.shebei_id
+        left join p_shebei_cat psc on pscs.cat_id = psc.id
+        <where>
+            <if test="id != null  and id != '' "> and pscs.id = #{id}</if>
+            <if test="name != null  and name != '' "> and pscs.name = #{name}</if>
+            <if test="catId != null  and catId != '' "> and pscs.cat_id = #{catId}</if>
+            <if test="shebeiId != null  and shebeiId != '' "> and pscs.shebei_id = #{shebeiId}</if>
+         </where>
+    </select>
+
+    <select id="selectListShebeiByCatId" parameterType="String" resultMap="ShebeiResult">
+
+        select mm.id as psid, mm.name as psname, mm.num_id, mm.ip as psip, mm.status,
+		  mm.point_x, mm.point_y, mm.region_id, mm.gateway,mm.mask,
+		  mm.mac, mm.remark as psremark, mm.synchronization, mm.volume, mm.creatuserid,
+		  mm.createtime, mm.port
+		from p_shebei mm
+        where mm.id not in (
+          select pscs.shebei_id
+          from p_shebei_cat_shebei pscs
+        )
+    </select>
+    <!--select mm.id as psid, mm.name as psname, mm.num_id, mm.ip as psip, mm.status,
+		  mm.point_x, mm.point_y, mm.region_id, mm.gateway,mm.mask,
+		  mm.mac, mm.remark as psremark, mm.synchronization, mm.volume, mm.creatuserid,
+		  mm.createtime, mm.port
+		from p_shebei mm
+        where mm.id not in (
+          select ps.id
+          from p_shebei_cat_shebei pscs
+          left join p_shebei_cat psc on pscs.cat_id = psc.id
+          left join p_shebei ps on ps.id = pscs.shebei_id
+          where pscs.cat_id = #{catId}
+        )-->
+    <select id="selectShebeiCatShebeiById" parameterType="String" resultMap="ShebeiCatShebeiResult">
+        <include refid="selectShebeiCatShebeiVo"/>
+        where id = #{id}
+    </select>
+    <select id="countShebeiCatShebeiByShebeiCatId" resultType="Integer" parameterType="String">
+	    select count(1) from p_shebei_cat_shebei where cat_id=#{shebeiCatId}
+    </select>
+    <insert id="insertShebeiCatShebei" parameterType="ShebeiCatShebei">
+        insert into p_shebei_cat_shebei
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="catId != null  and catId != ''  ">cat_id,</if>
+			<if test="shebeiId != null  and shebeiId != ''  ">shebei_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="catId != null  and catId != ''  ">#{catId},</if>
+			<if test="shebeiId != null  and shebeiId != ''  ">#{shebeiId},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateShebeiCatShebei" parameterType="ShebeiCatShebei">
+        update p_shebei_cat_shebei
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="catId != null  and catId != ''  ">cat_id = #{catId},</if>
+            <if test="shebeiId != null  and shebeiId != ''  ">shebei_id = #{shebeiId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteShebeiCatShebeiById" parameterType="String">
+        delete from p_shebei_cat_shebei where id = #{id}
+    </delete>
+	
+    <delete id="deleteShebeiCatShebeiByIds" parameterType="String">
+        delete from p_shebei_cat_shebei where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectshebeiCountByCatId" resultType="Integer" parameterType="Map">
+	    select count(1) from p_shebei_cat_shebei where cat_id=#{shebeiCatId}
+    </select>
+
+
+    <select id="selectByList" resultMap="ShebeiCatShebeiResult" parameterType="String">
+        SELECT * FROM p_shebei_cat_shebei WHERE  1=1 and cat_id IN (#{id})
+    </select>
+
+
+</mapper>
